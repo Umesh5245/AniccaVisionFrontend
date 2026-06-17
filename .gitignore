@@ -1,0 +1,16 @@
+node_modules
+.next
+out
+dist
+.env*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+
+# Original uploaded source videos are kept locally but not pushed.
+videos/Congestion.mp4
+videos/demo_banglore_traffic (1).mp4
+videos/license_number.avi
+videos/media8.mov
+videos/no_parking.mp4
