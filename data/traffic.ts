@@ -4,7 +4,7 @@ export type CameraFeed = {
   area: string;
   file: string;
   format: "mp4" | "mov" | "avi";
-  status: "Live" | "Review";
+  status:  "Review";
   vehicles: number;
   violations: number;
   confidence: number;
@@ -14,7 +14,7 @@ export type CameraFeed = {
 
 export type Metric = {
   label: string;
-  value: string;
+  value: number;
   tone: "rose" | "amber" | "emerald" | "blue";
 };
 
@@ -48,7 +48,6 @@ export const cameraFeeds: CameraFeed[] = [
     area: "Main Street",
     file: "demo_bangalore_traffic_h264.mp4",
     format: "mp4",
-    status: "Live",
     vehicles: 128,
     violations: 12,
     confidence: 94,
@@ -77,7 +76,6 @@ export const cameraFeeds: CameraFeed[] = [
     area: "City Center",
     file: "Congestion_h264.mp4",
     format: "mp4",
-    status: "Live",
     vehicles: 384,
     violations: 26,
     confidence: 91,
@@ -164,7 +162,6 @@ export const cameraFeeds: CameraFeed[] = [
     area: "Ring Road",
     file: "media8_h264.mp4",
     format: "mp4",
-    status: "Live",
     vehicles: 216,
     violations: 17,
     confidence: 92,
@@ -191,20 +188,20 @@ export const cameraFeeds: CameraFeed[] = [
 
 export function metricsForFeed(feed: CameraFeed): Metric[] {
   return [
-    { label: "Total Vehicles", value: feed.vehicles.toLocaleString("en-US"), tone: "rose" },
+    { label: "Total Vehicles", value: feed.vehicles, tone: "rose" },
     {
       label: "Pedestrian Lane Crossing",
-      value: feed.analysis.pedestrianLaneCrossings.toLocaleString("en-US"),
+      value: feed.analysis.pedestrianLaneCrossings,
       tone: "amber"
     },
     {
       label: "Heavy Motor Vehicle Detection",
-      value: feed.analysis.heavyMotorVehicles.toLocaleString("en-US"),
+      value: feed.analysis.heavyMotorVehicles,
       tone: "emerald"
     },
     {
       label: "Vehicles in Wrong Lane",
-      value: feed.analysis.wrongLaneVehicles.toLocaleString("en-US"),
+      value: feed.analysis.wrongLaneVehicles,
       tone: "blue"
     }
   ];

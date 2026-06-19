@@ -1,3 +1,4 @@
+import { AnimatedNumber } from "@/components/AnimatedNumber";
 import type { CameraFeed } from "@/data/traffic";
 
 export function SummaryPanels({ feed }: { feed: CameraFeed }) {
@@ -12,7 +13,9 @@ export function SummaryPanels({ feed }: { feed: CameraFeed }) {
               key={item.label}
             >
               <span>{item.label}</span>
-              <span className="text-[#214b9b]">{item.value}</span>
+              <span className="text-[#214b9b]">
+                <AnimatedNumber value={item.value} />
+              </span>
             </div>
           ))}
         </div>
@@ -27,7 +30,9 @@ export function SummaryPanels({ feed }: { feed: CameraFeed }) {
               key={item.label}
             >
               <span className="text-sm font-semibold text-slate-950">{item.label}</span>
-              <span className="text-2xl font-bold text-violet-600">{item.value}</span>
+              <span className="text-2xl font-bold text-violet-600">
+                <AnimatedNumber value={item.value} />
+              </span>
             </div>
           ))}
         </div>

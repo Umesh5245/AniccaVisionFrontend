@@ -1,6 +1,5 @@
 "use client";
 
-import { ChevronDown } from "lucide-react";
 import { useMemo, useState } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { GraphPanel } from "@/components/GraphPanel";
@@ -8,10 +7,9 @@ import { MetricCard } from "@/components/MetricCard";
 import { SummaryPanels } from "@/components/SummaryPanels";
 import { VideoCard } from "@/components/VideoCard";
 import { VideoStage } from "@/components/VideoStage";
-import { ViolationTable } from "@/components/ViolationTable";
 import { cameraFeeds, metricsForFeed } from "@/data/traffic";
 
-const tabs = ["Data View", "Graph", "Table"] as const;
+const tabs = ["Data View", "Graph"] as const;
 
 type Tab = (typeof tabs)[number];
 
@@ -55,14 +53,10 @@ export function TrafficDashboard({
                 </label>
                 <label className="flex items-center gap-3 text-sm font-semibold text-slate-950">
                   Filter:
-                  <span className="inline-flex h-10 items-center gap-2 rounded-sm px-3 text-sm font-bold text-slate-950">
-                    Live <ChevronDown size={16} />
-                  </span>
+
                 </label>
               </div>
-              <div className="inline-flex w-fit items-center rounded-md border border-rose-200 bg-white px-3 py-2 text-xs font-bold text-rose-600">
-                Live Metrics
-              </div>
+
             </div>
 
             <nav className="flex gap-5 border-b border-slate-300" aria-label="Dashboard sections">
@@ -110,8 +104,6 @@ export function TrafficDashboard({
             )}
 
             {activeTab === "Graph" && <GraphPanel feed={selectedFeed} />}
-
-            {activeTab === "Table" && <ViolationTable feed={selectedFeed} />}
           </div>
         </section>
       </div>

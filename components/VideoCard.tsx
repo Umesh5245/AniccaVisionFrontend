@@ -1,4 +1,5 @@
 import { Radio, ShieldCheck } from "lucide-react";
+import { AnimatedNumber } from "@/components/AnimatedNumber";
 import type { CameraFeed } from "@/data/traffic";
 
 function videoType(format: CameraFeed["format"]) {
@@ -59,15 +60,21 @@ export function VideoCard({
         </div>
         <div className="grid grid-cols-3 gap-2 text-xs">
           <span className="rounded-md bg-slate-100 px-2 py-2">
-            <strong className="block text-sm text-slate-950">{feed.vehicles}</strong>
+            <strong className="block text-sm text-slate-950">
+              <AnimatedNumber value={feed.vehicles} />
+            </strong>
             Vehicles
           </span>
           <span className="rounded-md bg-rose-50 px-2 py-2 text-rose-700">
-            <strong className="block text-sm">{feed.violations}</strong>
+            <strong className="block text-sm">
+              <AnimatedNumber value={feed.violations} />
+            </strong>
             Violations
           </span>
           <span className="rounded-md bg-emerald-50 px-2 py-2 text-emerald-700">
-            <strong className="block text-sm">{feed.confidence}%</strong>
+            <strong className="block text-sm">
+              <AnimatedNumber value={feed.confidence} suffix="%" />
+            </strong>
             AI score
           </span>
         </div>

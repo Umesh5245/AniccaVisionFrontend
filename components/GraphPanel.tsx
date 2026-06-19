@@ -1,4 +1,5 @@
 import { Download } from "lucide-react";
+import { AnimatedNumber } from "@/components/AnimatedNumber";
 import type { CameraFeed } from "@/data/traffic";
 import { vehicleChart, violationChart } from "@/data/traffic";
 
@@ -42,7 +43,7 @@ export function GraphPanel({ feed }: { feed: CameraFeed }) {
           <div>
             <h2 className="text-xl font-semibold text-slate-950">Vehicle Count</h2>
             <p className="mt-4 text-3xl font-bold text-slate-950">
-              {feed.vehicles.toLocaleString("en-US")}
+              <AnimatedNumber value={feed.vehicles} />
             </p>
           </div>
           <button
@@ -81,7 +82,7 @@ export function GraphPanel({ feed }: { feed: CameraFeed }) {
           <div>
             <h2 className="text-xl font-semibold text-slate-950">Violations</h2>
             <p className="mt-4 text-3xl font-bold text-slate-950">
-              {feed.violations.toLocaleString("en-US")}
+              <AnimatedNumber value={feed.violations} />
             </p>
           </div>
           <button
