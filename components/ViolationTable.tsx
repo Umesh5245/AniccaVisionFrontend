@@ -1,4 +1,5 @@
 import { Download } from "lucide-react";
+import type { CameraFeed } from "@/data/traffic";
 import { tableRows } from "@/data/traffic";
 
 const filters = [
@@ -10,7 +11,9 @@ const filters = [
   "Speed Detection"
 ];
 
-export function ViolationTable() {
+export function ViolationTable({ feed }: { feed: CameraFeed }) {
+  const feedRows = tableRows.filter((row) => row.feedId === feed.id);
+
   return (
     <div className="grid gap-5 lg:grid-cols-[180px_1fr]">
       <aside className="rounded-md border border-slate-200 bg-white p-3 shadow-sm">
@@ -34,7 +37,7 @@ export function ViolationTable() {
           <div className="flex items-center gap-3">
             <h2 className="text-lg font-semibold text-slate-950">Violations</h2>
             <span className="rounded-full bg-violet-600 px-3 py-1 text-xs font-bold text-white">
-              Total: 6
+              Total: {feedRows.length}
             </span>
           </div>
           <button
@@ -58,7 +61,7 @@ export function ViolationTable() {
               </tr>
             </thead>
             <tbody>
-              {tableRows.map((row) => (
+              {feedRows.map((row) => (
                 <tr className="border-b border-slate-100 text-sm text-slate-700" key={`${row.plate}-${row.timestamp}`}>
                   <td className="px-4 py-4 font-medium text-slate-950">{row.plate}</td>
                   <td className="px-4 py-4">{row.vehicle}</td>

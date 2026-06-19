@@ -9,7 +9,7 @@ import { SummaryPanels } from "@/components/SummaryPanels";
 import { VideoCard } from "@/components/VideoCard";
 import { VideoStage } from "@/components/VideoStage";
 import { ViolationTable } from "@/components/ViolationTable";
-import { cameraFeeds, metrics } from "@/data/traffic";
+import { cameraFeeds, metricsForFeed } from "@/data/traffic";
 
 const tabs = ["Data View", "Graph", "Table"] as const;
 
@@ -29,6 +29,7 @@ export function TrafficDashboard({
     () => cameraFeeds.find((feed) => feed.id === selectedFeedId) ?? cameraFeeds[0],
     [selectedFeedId]
   );
+  const selectedMetrics = useMemo(() => metricsForFeed(selectedFeed), [selectedFeed]);
 
   return (
     <main className="min-h-screen">
@@ -40,12 +41,16 @@ export function TrafficDashboard({
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                 <label className="flex items-center gap-3 text-sm font-semibold text-slate-950">
                   Select Area
-                  <select className="h-10 min-w-52 rounded-sm border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 outline-none transition focus:border-[#3157a8]">
-                    <option>Main Street</option>
-                    <option>City Center</option>
-                    <option>Market Road</option>
-                    <option>Toll Junction</option>
-                    <option>Ring Road</option>
+                  <select
+                    className="h-10 min-w-52 rounded-sm border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 outline-none transition focus:border-[#3157a8]"
+                    onChange={(event) => setSelectedFeedId(event.target.value)}
+                    value={selectedFeedId}
+                  >
+                    {cameraFeeds.map((feed) => (
+                      <option key={feed.id} value={feed.id}>
+                        {feed.area}
+                      </option>
+                    ))}
                   </select>
                 </label>
                 <label className="flex items-center gap-3 text-sm font-semibold text-slate-950">
@@ -81,7 +86,7 @@ export function TrafficDashboard({
               <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_410px]">
                 <div className="space-y-5">
                   <div className="metric-grid grid gap-4">
-                    {metrics.map((metric) => (
+                    {selectedMetrics.map((metric) => (
                       <MetricCard key={metric.label} metric={metric} />
                     ))}
                   </div>
@@ -100,13 +105,13 @@ export function TrafficDashboard({
                     </div>
                   </section>
                 </div>
-                <SummaryPanels />
+                <SummaryPanels feed={selectedFeed} />
               </div>
             )}
 
-            {activeTab === "Graph" && <GraphPanel />}
+            {activeTab === "Graph" && <GraphPanel feed={selectedFeed} />}
 
-            {activeTab === "Table" && <ViolationTable />}
+            {activeTab === "Table" && <ViolationTable feed={selectedFeed} />}
           </div>
         </section>
       </div>

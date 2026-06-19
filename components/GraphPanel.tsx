@@ -1,4 +1,5 @@
 import { Download } from "lucide-react";
+import type { CameraFeed } from "@/data/traffic";
 import { vehicleChart, violationChart } from "@/data/traffic";
 
 const vehicleLegend = [
@@ -33,14 +34,16 @@ function Legend({
   );
 }
 
-export function GraphPanel() {
+export function GraphPanel({ feed }: { feed: CameraFeed }) {
   return (
     <div className="grid gap-6 xl:grid-cols-2">
       <section className="rounded-md border border-slate-200 bg-white p-5 shadow-soft">
         <div className="mb-5 flex items-start justify-between gap-4">
           <div>
             <h2 className="text-xl font-semibold text-slate-950">Vehicle Count</h2>
-            <p className="mt-4 text-3xl font-bold text-slate-950">250</p>
+            <p className="mt-4 text-3xl font-bold text-slate-950">
+              {feed.vehicles.toLocaleString("en-US")}
+            </p>
           </div>
           <button
             aria-label="Download vehicle count"
@@ -77,7 +80,9 @@ export function GraphPanel() {
         <div className="mb-5 flex items-start justify-between gap-4">
           <div>
             <h2 className="text-xl font-semibold text-slate-950">Violations</h2>
-            <p className="mt-4 text-3xl font-bold text-slate-950">85</p>
+            <p className="mt-4 text-3xl font-bold text-slate-950">
+              {feed.violations.toLocaleString("en-US")}
+            </p>
           </div>
           <button
             aria-label="Download violations"
