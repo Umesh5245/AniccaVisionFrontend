@@ -29,14 +29,14 @@ export function VideoCard({
 }) {
   return (
     <article
-      className={`group overflow-hidden rounded-md border bg-white text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-soft ${
+      className={`group flex h-full flex-col overflow-hidden rounded-md border bg-white text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-soft ${
         selected ? "border-[#3157a8] ring-2 ring-[#3157a8]/15" : "border-slate-200"
       }`}
     >
       <div className="relative aspect-video overflow-hidden bg-slate-950">
         <video
           autoPlay
-          className="h-full w-full object-cover opacity-90 transition group-hover:opacity-100"
+          className="h-full w-full object-contain opacity-90 transition group-hover:opacity-100"
           controls
           loop
           muted
@@ -53,7 +53,7 @@ export function VideoCard({
           {feed.format.toUpperCase()}
         </span>
       </div>
-      <div className="space-y-3 p-4">
+      <div className="flex flex-1 flex-col gap-3 p-4">
         <div>
           <h3 className="text-sm font-semibold text-slate-950">{feed.title}</h3>
           <p className="mt-1 text-xs font-medium text-slate-500">{feed.area}</p>
@@ -83,7 +83,7 @@ export function VideoCard({
           {feed.highlight}
         </p>
         <button
-          className="h-9 w-full rounded-md bg-[#3157a8] text-sm font-bold text-white transition hover:bg-[#264985]"
+          className="mt-auto h-9 w-full rounded-md bg-[#3157a8] text-sm font-bold text-white transition hover:bg-[#264985]"
           onClick={onSelect}
           type="button"
         >

@@ -97,7 +97,7 @@ export function GraphPanel({ feed }: { feed: CameraFeed }) {
         <div className="mt-8 flex h-56 items-end justify-between gap-4 border-b border-slate-200 px-2">
           {violationChart.map((group) => {
             const total =
-              group.parking + group.wrongLane + group.stop + group.speed + group.infiltration;
+              group.parking + group.wrongLane + group.stop + group.speed + group.infiltration || 1;
 
             return (
               <div className="flex min-w-0 flex-1 flex-col items-center gap-3" key={group.label}>

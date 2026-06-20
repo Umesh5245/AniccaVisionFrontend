@@ -77,29 +77,31 @@ export function TrafficDashboard({
             </nav>
 
             {activeTab === "Data View" && (
-              <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_410px]">
-                <div className="space-y-5">
-                  <div className="metric-grid grid gap-4">
-                    {selectedMetrics.map((metric) => (
-                      <MetricCard key={metric.label} metric={metric} />
-                    ))}
-                  </div>
-                  <VideoStage feed={selectedFeed} />
-                  <section>
-                    <h2 className="mb-3 text-lg font-semibold text-slate-950">Video Evidence</h2>
-                    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                      {cameraFeeds.map((feed) => (
-                        <VideoCard
-                          feed={feed}
-                          key={feed.id}
-                          onSelect={() => setSelectedFeedId(feed.id)}
-                          selected={feed.id === selectedFeed.id}
-                        />
+              <div className="space-y-6">
+                <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_410px]">
+                  <div className="space-y-5">
+                    <div className="metric-grid grid gap-4">
+                      {selectedMetrics.map((metric) => (
+                        <MetricCard key={metric.label} metric={metric} />
                       ))}
                     </div>
-                  </section>
+                    <VideoStage feed={selectedFeed} />
+                  </div>
+                  <SummaryPanels feed={selectedFeed} />
                 </div>
-                <SummaryPanels feed={selectedFeed} />
+                <section>
+                  <h2 className="mb-3 text-lg font-semibold text-slate-950">Video Evidence</h2>
+                  <div className="grid auto-rows-fr grid-cols-5 gap-4">
+                    {cameraFeeds.map((feed) => (
+                      <VideoCard
+                        feed={feed}
+                        key={feed.id}
+                        onSelect={() => setSelectedFeedId(feed.id)}
+                        selected={feed.id === selectedFeed.id}
+                      />
+                    ))}
+                  </div>
+                </section>
               </div>
             )}
 
