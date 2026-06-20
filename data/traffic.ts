@@ -10,6 +10,8 @@ export type CameraFeed = {
   confidence: number;
   highlight: string;
   analysis: VideoAnalysis;
+  // set by the backend when a feed comes from a live analysis run
+  analyzedAt?: string;
 };
 
 export type Metric = {
@@ -39,19 +41,38 @@ export type TableRow = {
   speed: string;
   camera: string;
   timestamp: string;
+  ocrConfidence: number;
 };
 
-// Counts below are derived from the actual video files via YOLOv8s object
-// detection + ByteTrack multi-object tracking (unique tracked IDs per class),
-// sampling every 2nd frame. Each clip was also re-run at every 4th frame to
-// confirm the figures move together; denser sampling finds 35-50% more unique
-// tracks, so treat these as detection-based estimates, not exact ground truth.
-// Vehicle/heavy/pedestrian counts and the AI confidence score are measured
-// directly. Violation breakdowns are video-grounded heuristics: illegal
-// parking = vehicles present >=3s with near-zero net movement; speed =
-// vehicles above a high normalized speed threshold; wrong lane = vehicles
-// moving against the scene's dominant flow; stop/yield = moving vehicles that
-// never slow down; infiltration = pedestrians crossing the roadway.
+export type VehicleBucket = {
+  label: string;
+  car: number;
+  motorcycle: number;
+  truck: number;
+  bus: number;
+  bicycle: number;
+};
+
+export type ViolationBucket = {
+  label: string;
+  parking: number;
+  wrongLane: number;
+  stop: number;
+  speed: number;
+  infiltration: number;
+};
+
+// Counts and timelines below are derived from the actual video files in one
+// YOLOv8s + ByteTrack pass per clip (sampling every 2nd frame). Each unique
+// track is attributed to the time bucket in which it first appears, so the
+// per-camera timelines sum to the headline counts. Vehicle / heavy / pedestrian
+// counts and the AI confidence score are measured directly. Violation
+// breakdowns are video-grounded heuristics: illegal parking = present >=3s with
+// near-zero net movement; speed = above a high normalized speed threshold;
+// wrong lane = moving against the scene's dominant flow; stop/yield = moving but
+// never slowing; infiltration = pedestrians crossing the roadway. Plate strings
+// in tableRows are real EasyOCR reads tied to a tracked vehicle; speed is shown
+// as "--" because pixel->kmph needs per-camera calibration we do not have.
 export const cameraFeeds: CameraFeed[] = [
   {
     id: "bangalore-flow",
@@ -91,7 +112,7 @@ export const cameraFeeds: CameraFeed[] = [
     format: "mp4",
     status: "Live",
     vehicles: 104,
-    violations: 19,
+    violations: 20,
     confidence: 51,
     highlight: "Peak congestion",
     analysis: {
@@ -108,7 +129,7 @@ export const cameraFeeds: CameraFeed[] = [
       violationSummary: [
         { label: "Undetected Infiltrations", value: 0 },
         { label: "Speed Detection", value: 0 },
-        { label: "Illegal Parking", value: 19 },
+        { label: "Illegal Parking", value: 20 },
         { label: "Stop/Yield Violations", value: 0 }
       ]
     }
@@ -120,17 +141,17 @@ export const cameraFeeds: CameraFeed[] = [
     file: "no_parking_h264.mp4",
     format: "mp4",
     status: "Review",
-    vehicles: 71,
+    vehicles: 70,
     violations: 13,
     confidence: 62,
     highlight: "Restricted bay activity",
     analysis: {
-      pedestrianLaneCrossings: 63,
+      pedestrianLaneCrossings: 62,
       heavyMotorVehicles: 11,
       wrongLaneVehicles: 2,
       vehicleClassifications: [
         { label: "Cars", value: 43 },
-        { label: "Motorcycles", value: 17 },
+        { label: "Motorcycles", value: 16 },
         { label: "Trucks", value: 9 },
         { label: "Buses", value: 2 },
         { label: "Bicycles", value: 0 }
@@ -150,7 +171,7 @@ export const cameraFeeds: CameraFeed[] = [
     file: "license_number.mp4",
     format: "mp4",
     status: "Review",
-    vehicles: 55,
+    vehicles: 54,
     violations: 21,
     confidence: 69,
     highlight: "Plate OCR sample",
@@ -160,7 +181,7 @@ export const cameraFeeds: CameraFeed[] = [
       wrongLaneVehicles: 3,
       vehicleClassifications: [
         { label: "Cars", value: 37 },
-        { label: "Motorcycles", value: 6 },
+        { label: "Motorcycles", value: 5 },
         { label: "Trucks", value: 2 },
         { label: "Buses", value: 3 },
         { label: "Bicycles", value: 7 }
@@ -226,78 +247,246 @@ export function metricsForFeed(feed: CameraFeed): Metric[] {
   ];
 }
 
-// Per-camera comparison built from the same detection pass as cameraFeeds.
-// (The clips aren't aligned to a shared clock, so a per-camera breakdown is
-// the truthful view rather than a synthetic time series.)
-export const vehicleChart = [
-  { label: "Bangalore", bicycle: 1, motorcycle: 0, trucks: 22, buses: 8 },
-  { label: "Congestion", bicycle: 0, motorcycle: 0, trucks: 9, buses: 8 },
-  { label: "No Parking", bicycle: 0, motorcycle: 17, trucks: 9, buses: 2 },
-  { label: "Plate Cap", bicycle: 7, motorcycle: 6, trucks: 2, buses: 3 },
-  { label: "Junction 8", bicycle: 0, motorcycle: 0, trucks: 1, buses: 14 }
-];
+// Real per-camera timelines: vehicle entries bucketed across each clip's
+// duration (labels are elapsed time, m:ss).
+export const vehicleTimelineByFeed: Record<string, VehicleBucket[]> = {
+  "bangalore-flow": [
+    { label: "0:00", car: 5, motorcycle: 0, truck: 1, bus: 0, bicycle: 0 },
+    { label: "1:24", car: 11, motorcycle: 0, truck: 10, bus: 1, bicycle: 0 },
+    { label: "2:49", car: 3, motorcycle: 0, truck: 1, bus: 3, bicycle: 1 },
+    { label: "4:13", car: 3, motorcycle: 0, truck: 0, bus: 1, bicycle: 0 },
+    { label: "5:38", car: 2, motorcycle: 0, truck: 1, bus: 1, bicycle: 0 },
+    { label: "7:02", car: 3, motorcycle: 0, truck: 4, bus: 0, bicycle: 0 },
+    { label: "8:27", car: 2, motorcycle: 0, truck: 3, bus: 2, bicycle: 0 },
+    { label: "9:51", car: 6, motorcycle: 0, truck: 2, bus: 0, bicycle: 0 }
+  ],
+  "congestion": [
+    { label: "0:00", car: 27, motorcycle: 0, truck: 3, bus: 0, bicycle: 0 },
+    { label: "0:04", car: 7, motorcycle: 0, truck: 0, bus: 0, bicycle: 0 },
+    { label: "0:08", car: 9, motorcycle: 0, truck: 0, bus: 2, bicycle: 0 },
+    { label: "0:12", car: 18, motorcycle: 0, truck: 2, bus: 0, bicycle: 0 },
+    { label: "0:16", car: 10, motorcycle: 0, truck: 1, bus: 0, bicycle: 0 },
+    { label: "0:21", car: 4, motorcycle: 0, truck: 0, bus: 3, bicycle: 0 },
+    { label: "0:25", car: 4, motorcycle: 0, truck: 1, bus: 2, bicycle: 0 },
+    { label: "0:29", car: 8, motorcycle: 0, truck: 2, bus: 1, bicycle: 0 }
+  ],
+  "no-parking": [
+    { label: "0:00", car: 6, motorcycle: 2, truck: 2, bus: 0, bicycle: 0 },
+    { label: "0:02", car: 4, motorcycle: 1, truck: 0, bus: 1, bicycle: 0 },
+    { label: "0:03", car: 3, motorcycle: 2, truck: 1, bus: 0, bicycle: 0 },
+    { label: "0:05", car: 5, motorcycle: 1, truck: 1, bus: 0, bicycle: 0 },
+    { label: "0:07", car: 2, motorcycle: 1, truck: 2, bus: 0, bicycle: 0 },
+    { label: "0:08", car: 7, motorcycle: 4, truck: 2, bus: 0, bicycle: 0 },
+    { label: "0:10", car: 11, motorcycle: 5, truck: 1, bus: 0, bicycle: 0 },
+    { label: "0:12", car: 5, motorcycle: 0, truck: 0, bus: 1, bicycle: 0 }
+  ],
+  "plate-capture": [
+    { label: "0:00", car: 11, motorcycle: 2, truck: 1, bus: 0, bicycle: 3 },
+    { label: "0:02", car: 4, motorcycle: 1, truck: 0, bus: 0, bicycle: 2 },
+    { label: "0:05", car: 0, motorcycle: 0, truck: 0, bus: 1, bicycle: 2 },
+    { label: "0:07", car: 4, motorcycle: 2, truck: 0, bus: 1, bicycle: 0 },
+    { label: "0:10", car: 5, motorcycle: 0, truck: 0, bus: 1, bicycle: 0 },
+    { label: "0:12", car: 5, motorcycle: 0, truck: 1, bus: 0, bicycle: 0 },
+    { label: "0:14", car: 3, motorcycle: 0, truck: 0, bus: 0, bicycle: 0 },
+    { label: "0:17", car: 5, motorcycle: 0, truck: 0, bus: 0, bicycle: 0 }
+  ],
+  "junction-eight": [
+    { label: "0:00", car: 2, motorcycle: 0, truck: 0, bus: 1, bicycle: 0 },
+    { label: "0:03", car: 2, motorcycle: 0, truck: 0, bus: 0, bicycle: 0 },
+    { label: "0:05", car: 1, motorcycle: 0, truck: 0, bus: 2, bicycle: 0 },
+    { label: "0:08", car: 3, motorcycle: 0, truck: 1, bus: 2, bicycle: 0 },
+    { label: "0:10", car: 6, motorcycle: 0, truck: 0, bus: 2, bicycle: 0 },
+    { label: "0:13", car: 3, motorcycle: 0, truck: 0, bus: 3, bicycle: 0 },
+    { label: "0:16", car: 7, motorcycle: 0, truck: 0, bus: 2, bicycle: 0 },
+    { label: "0:18", car: 0, motorcycle: 0, truck: 0, bus: 2, bicycle: 0 }
+  ]
+};
 
-export const violationChart = [
-  { label: "Bangalore", parking: 10, wrongLane: 3, stop: 3, speed: 7, infiltration: 9 },
-  { label: "Congestion", parking: 19, wrongLane: 0, stop: 0, speed: 0, infiltration: 0 },
-  { label: "No Parking", parking: 2, wrongLane: 2, stop: 0, speed: 3, infiltration: 8 },
-  { label: "Plate Cap", parking: 8, wrongLane: 3, stop: 1, speed: 5, infiltration: 7 },
-  { label: "Junction 8", parking: 0, wrongLane: 1, stop: 1, speed: 1, infiltration: 0 }
-];
+export const violationTimelineByFeed: Record<string, ViolationBucket[]> = {
+  "bangalore-flow": [
+    { label: "0:00", parking: 3, wrongLane: 0, stop: 0, speed: 0, infiltration: 3 },
+    { label: "1:24", parking: 4, wrongLane: 0, stop: 1, speed: 1, infiltration: 0 },
+    { label: "2:49", parking: 0, wrongLane: 1, stop: 0, speed: 0, infiltration: 1 },
+    { label: "4:13", parking: 0, wrongLane: 1, stop: 0, speed: 2, infiltration: 1 },
+    { label: "5:38", parking: 0, wrongLane: 1, stop: 0, speed: 1, infiltration: 3 },
+    { label: "7:02", parking: 1, wrongLane: 0, stop: 1, speed: 1, infiltration: 0 },
+    { label: "8:27", parking: 1, wrongLane: 0, stop: 0, speed: 0, infiltration: 1 },
+    { label: "9:51", parking: 1, wrongLane: 0, stop: 1, speed: 2, infiltration: 0 }
+  ],
+  "congestion": [
+    { label: "0:00", parking: 10, wrongLane: 0, stop: 0, speed: 0, infiltration: 0 },
+    { label: "0:04", parking: 0, wrongLane: 0, stop: 0, speed: 0, infiltration: 0 },
+    { label: "0:08", parking: 2, wrongLane: 0, stop: 0, speed: 0, infiltration: 0 },
+    { label: "0:12", parking: 1, wrongLane: 0, stop: 0, speed: 0, infiltration: 0 },
+    { label: "0:16", parking: 4, wrongLane: 0, stop: 0, speed: 0, infiltration: 0 },
+    { label: "0:21", parking: 2, wrongLane: 0, stop: 0, speed: 0, infiltration: 0 },
+    { label: "0:25", parking: 1, wrongLane: 0, stop: 0, speed: 0, infiltration: 0 },
+    { label: "0:29", parking: 0, wrongLane: 0, stop: 0, speed: 0, infiltration: 0 }
+  ],
+  "no-parking": [
+    { label: "0:00", parking: 1, wrongLane: 0, stop: 0, speed: 0, infiltration: 2 },
+    { label: "0:02", parking: 0, wrongLane: 1, stop: 0, speed: 0, infiltration: 1 },
+    { label: "0:03", parking: 1, wrongLane: 0, stop: 0, speed: 0, infiltration: 1 },
+    { label: "0:05", parking: 0, wrongLane: 0, stop: 0, speed: 0, infiltration: 3 },
+    { label: "0:07", parking: 0, wrongLane: 0, stop: 0, speed: 0, infiltration: 1 },
+    { label: "0:08", parking: 0, wrongLane: 1, stop: 0, speed: 1, infiltration: 0 },
+    { label: "0:10", parking: 0, wrongLane: 0, stop: 0, speed: 2, infiltration: 0 },
+    { label: "0:12", parking: 0, wrongLane: 0, stop: 0, speed: 0, infiltration: 0 }
+  ],
+  "plate-capture": [
+    { label: "0:00", parking: 6, wrongLane: 2, stop: 1, speed: 2, infiltration: 3 },
+    { label: "0:02", parking: 0, wrongLane: 1, stop: 0, speed: 1, infiltration: 1 },
+    { label: "0:05", parking: 0, wrongLane: 0, stop: 0, speed: 1, infiltration: 0 },
+    { label: "0:07", parking: 0, wrongLane: 0, stop: 0, speed: 1, infiltration: 1 },
+    { label: "0:10", parking: 1, wrongLane: 0, stop: 0, speed: 0, infiltration: 0 },
+    { label: "0:12", parking: 1, wrongLane: 0, stop: 0, speed: 0, infiltration: 0 },
+    { label: "0:14", parking: 0, wrongLane: 0, stop: 0, speed: 0, infiltration: 1 },
+    { label: "0:17", parking: 0, wrongLane: 0, stop: 0, speed: 0, infiltration: 1 }
+  ],
+  "junction-eight": [
+    { label: "0:00", parking: 0, wrongLane: 1, stop: 0, speed: 0, infiltration: 0 },
+    { label: "0:03", parking: 0, wrongLane: 0, stop: 0, speed: 0, infiltration: 0 },
+    { label: "0:05", parking: 0, wrongLane: 0, stop: 0, speed: 0, infiltration: 0 },
+    { label: "0:08", parking: 0, wrongLane: 0, stop: 1, speed: 0, infiltration: 0 },
+    { label: "0:10", parking: 0, wrongLane: 0, stop: 0, speed: 0, infiltration: 0 },
+    { label: "0:13", parking: 0, wrongLane: 0, stop: 0, speed: 0, infiltration: 0 },
+    { label: "0:16", parking: 0, wrongLane: 0, stop: 0, speed: 1, infiltration: 0 },
+    { label: "0:18", parking: 0, wrongLane: 0, stop: 0, speed: 0, infiltration: 0 }
+  ]
+};
 
 export const tableRows: TableRow[] = [
   {
-    feedId: "bangalore-flow",
-    plate: "KA 07 GT 2872",
-    vehicle: "Truck",
-    violation: "Wrong lane",
-    speed: "42 kmph",
-    camera: "Bangalore Traffic Flow",
-    timestamp: "01/05/2026 12:02 PM"
-  },
-  {
-    feedId: "congestion",
-    plate: "KA 03 MN 7714",
-    vehicle: "Motorcycle",
-    violation: "Speed detection",
-    speed: "75 kmph",
-    camera: "Congestion Monitoring",
-    timestamp: "01/05/2026 12:06 PM"
-  },
-  {
-    feedId: "no-parking",
-    plate: "KA 51 HC 4490",
+    feedId: "plate-capture",
+    plate: "593YB",
     vehicle: "Car",
-    violation: "Illegal parking",
-    speed: "0 kmph",
-    camera: "No Parking Detection",
-    timestamp: "01/05/2026 12:10 PM"
-  },
-  {
-    feedId: "junction-eight",
-    plate: "KA 01 AB 2291",
-    vehicle: "Bus",
-    violation: "Stop/Yield violation",
-    speed: "18 kmph",
-    camera: "Junction Camera 8",
-    timestamp: "01/05/2026 12:13 PM"
+    violation: "No violation",
+    speed: "--",
+    camera: "License Plate Capture",
+    timestamp: "06/20/2026 09:00:00 AM",
+    ocrConfidence: 0.99
   },
   {
     feedId: "plate-capture",
-    plate: "KA 09 ZT 1208",
-    vehicle: "Truck",
-    violation: "Undetected infiltration",
-    speed: "31 kmph",
+    plate: "AK396Y",
+    vehicle: "Car",
+    violation: "No violation",
+    speed: "--",
     camera: "License Plate Capture",
-    timestamp: "01/05/2026 12:17 PM"
+    timestamp: "06/20/2026 09:00:08 AM",
+    ocrConfidence: 0.96
   },
   {
-    feedId: "junction-eight",
-    plate: "KA 04 LP 8055",
+    feedId: "plate-capture",
+    plate: "JEVO7",
     vehicle: "Car",
-    violation: "Wrong lane",
-    speed: "39 kmph",
-    camera: "Ring Road",
-    timestamp: "01/05/2026 12:22 PM"
+    violation: "No violation",
+    speed: "--",
+    camera: "License Plate Capture",
+    timestamp: "06/20/2026 09:00:00 AM",
+    ocrConfidence: 0.9
+  },
+  {
+    feedId: "plate-capture",
+    plate: "BA23717",
+    vehicle: "Car",
+    violation: "No violation",
+    speed: "--",
+    camera: "License Plate Capture",
+    timestamp: "06/20/2026 09:00:17 AM",
+    ocrConfidence: 0.88
+  },
+  {
+    feedId: "plate-capture",
+    plate: "KAX639",
+    vehicle: "Car",
+    violation: "No violation",
+    speed: "--",
+    camera: "License Plate Capture",
+    timestamp: "06/20/2026 09:00:05 AM",
+    ocrConfidence: 0.85
+  },
+  {
+    feedId: "plate-capture",
+    plate: "KEW0208",
+    vehicle: "Car",
+    violation: "No violation",
+    speed: "--",
+    camera: "License Plate Capture",
+    timestamp: "06/20/2026 09:00:15 AM",
+    ocrConfidence: 0.67
+  },
+  {
+    feedId: "plate-capture",
+    plate: "3528E",
+    vehicle: "Car",
+    violation: "No violation",
+    speed: "--",
+    camera: "License Plate Capture",
+    timestamp: "06/20/2026 09:00:09 AM",
+    ocrConfidence: 0.66
+  },
+  {
+    feedId: "plate-capture",
+    plate: "A931N9",
+    vehicle: "Car",
+    violation: "No violation",
+    speed: "--",
+    camera: "License Plate Capture",
+    timestamp: "06/20/2026 09:00:00 AM",
+    ocrConfidence: 0.64
+  },
+  {
+    feedId: "plate-capture",
+    plate: "A63668",
+    vehicle: "Bus",
+    violation: "No violation",
+    speed: "--",
+    camera: "License Plate Capture",
+    timestamp: "06/20/2026 09:00:09 AM",
+    ocrConfidence: 0.64
+  },
+  {
+    feedId: "plate-capture",
+    plate: "FEVOZ7",
+    vehicle: "Car",
+    violation: "No violation",
+    speed: "--",
+    camera: "License Plate Capture",
+    timestamp: "06/20/2026 09:00:01 AM",
+    ocrConfidence: 0.63
+  },
+  {
+    feedId: "plate-capture",
+    plate: "AS28EY",
+    vehicle: "Car",
+    violation: "No violation",
+    speed: "--",
+    camera: "License Plate Capture",
+    timestamp: "06/20/2026 09:00:15 AM",
+    ocrConfidence: 0.61
+  },
+  // Market Road (no-parking): two cars detected illegally parked (stationary
+  // ~5.7s and ~3.9s). Their plates are not legible at this clip's resolution,
+  // so the plate is flagged rather than fabricated.
+  {
+    feedId: "no-parking",
+    plate: "Not legible",
+    vehicle: "Car",
+    violation: "Illegal parking",
+    speed: "--",
+    camera: "No Parking Detection",
+    timestamp: "06/20/2026 09:00:00 AM",
+    ocrConfidence: 0
+  },
+  {
+    feedId: "no-parking",
+    plate: "Not legible",
+    vehicle: "Car",
+    violation: "Illegal parking",
+    speed: "--",
+    camera: "No Parking Detection",
+    timestamp: "06/20/2026 09:00:04 AM",
+    ocrConfidence: 0
   }
 ];

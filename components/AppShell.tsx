@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { DataProvider } from "@/components/DataContext";
 import { LoginScreen } from "@/components/LoginScreen";
 import { TrafficDashboard } from "@/components/TrafficDashboard";
 
@@ -33,5 +34,9 @@ export function AppShell() {
     return <LoginScreen onLogin={handleLogin} />;
   }
 
-  return <TrafficDashboard onLogout={handleLogout} userEmail={userEmail} />;
+  return (
+    <DataProvider>
+      <TrafficDashboard onLogout={handleLogout} userEmail={userEmail} />
+    </DataProvider>
+  );
 }

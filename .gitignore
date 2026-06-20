@@ -8,6 +8,13 @@ yarn-debug.log*
 yarn-error.log*
 .DS_Store
 
+# Python detection backend
+backend/.venv
+backend/anicca.db
+**/__pycache__/
+*.pyc
+yolov8*.pt
+
 # Original uploaded source videos are kept locally but not pushed.
 videos/Congestion.mp4
 videos/demo_banglore_traffic (1).mp4

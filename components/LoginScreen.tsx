@@ -2,6 +2,7 @@
 
 import { Eye, LockKeyhole, Mail, ShieldCheck } from "lucide-react";
 import { FormEvent, useState } from "react";
+import { AniccaDataLogo } from "@/components/AniccaDataLogo";
 
 export function LoginScreen({ onLogin }: { onLogin: (email: string) => void }) {
   const [email, setEmail] = useState("admin@aniccavision.ai");
@@ -19,7 +20,7 @@ export function LoginScreen({ onLogin }: { onLogin: (email: string) => void }) {
   }
 
   return (
-    <main className="grid min-h-screen bg-[#eef5fc] lg:grid-cols-[1fr_460px]">
+    <main className="grid min-h-full bg-[#eef5fc] lg:grid-cols-[1fr_460px]">
       <section className="relative hidden overflow-hidden bg-slate-950 lg:block">
         <video
           autoPlay
@@ -45,24 +46,13 @@ export function LoginScreen({ onLogin }: { onLogin: (email: string) => void }) {
           <h1 className="mt-4 text-5xl font-bold leading-tight text-white">
             Real-time road intelligence dashboard
           </h1>
-          <div className="mt-8 grid max-w-lg grid-cols-3 gap-3">
-            {[
-              ["899", "Vehicles"],
-              ["85", "Violations"],
-              ["94%", "AI score"]
-            ].map(([value, label]) => (
-              <div className="rounded-md bg-white/12 p-4 backdrop-blur" key={label}>
-                <p className="text-2xl font-bold text-white">{value}</p>
-                <p className="mt-1 text-xs font-semibold text-slate-200">{label}</p>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 
-      <section className="flex min-h-screen items-center justify-center px-4 py-8 sm:px-6 lg:px-10">
+      <section className="flex min-h-full items-center justify-center px-4 py-8 sm:px-6 lg:px-10">
         <div className="w-full max-w-md rounded-md border border-slate-200 bg-white p-6 shadow-soft sm:p-8">
           <div className="mb-8">
+            <AniccaDataLogo className="mb-6" size="md" />
             <div className="mb-5 flex items-center gap-3 lg:hidden">
               <div className="grid h-10 w-10 place-items-center rounded-md bg-[#3157a8] text-sm font-black text-white">
                 AV
