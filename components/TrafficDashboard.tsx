@@ -1,10 +1,16 @@
 "use client";
 
+import { Cctv } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { AppHeader } from "@/components/AppHeader";
+import { CameraSwitcher } from "@/components/CameraSwitcher";
 import { useDataset } from "@/components/DataContext";
+import { EmptyState } from "@/components/EmptyState";
 import { GraphPanel } from "@/components/GraphPanel";
+import { HistoryTrend } from "@/components/HistoryTrend";
+import { KpiStrip, KpiStripSkeleton } from "@/components/KpiStrip";
 import { MetricCard } from "@/components/MetricCard";
+import { Skeleton } from "@/components/Skeleton";
 import { SummaryPanels } from "@/components/SummaryPanels";
 import { VideoCard } from "@/components/VideoCard";
 import { VideoStage } from "@/components/VideoStage";
@@ -26,8 +32,9 @@ export function TrafficDashboard({
   onLogout: () => void;
   userEmail: string;
 }) {
-  const { dataset } = useDataset();
+  const { dataset, source } = useDataset();
   const feeds = dataset.feeds;
+  const loading = source === "loading";
 
   const [activeTab, setActiveTab] = useState<Tab>("Data View");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("All");
@@ -47,10 +54,19 @@ export function TrafficDashboard({
   );
 
   const selectedFeed = feeds.find((feed) => feed.id === selectedFeedId) ?? feeds[0];
-  const selectedMetrics = useMemo(
-    () => (selectedFeed ? metricsForFeed(selectedFeed) : []),
-    [selectedFeed]
-  );
+
+  // Enrich each metric with its % difference vs the fleet average (trend hint).
+  const selectedMetrics = useMemo(() => {
+    if (!selectedFeed) return [];
+    const base = metricsForFeed(selectedFeed);
+    const all = feeds.map(metricsForFeed);
+    return base.map((metric, i) => {
+      const values = all.map((m) => m[i]?.value ?? 0);
+      const avg = values.length ? values.reduce((a, b) => a + b, 0) / values.length : 0;
+      const delta = avg > 0 ? Math.round(((metric.value - avg) / avg) * 100) : 0;
+      return { ...metric, delta };
+    });
+  }, [selectedFeed, feeds]);
 
   function handleStatusFilter(value: StatusFilter) {
     setStatusFilter(value);
@@ -64,7 +80,12 @@ export function TrafficDashboard({
     return (
       <main className="min-h-full">
         <AppHeader onLogout={onLogout} userEmail={userEmail} />
-        <div className="mx-auto max-w-7xl px-4 py-10 text-sm text-slate-600">No camera feeds yet.</div>
+        <EmptyState
+          className="mt-10"
+          hint="Analyze a clip from Manage cameras to populate the dashboard."
+          icon={Cctv}
+          title="No camera feeds yet"
+        />
       </main>
     );
   }
@@ -72,48 +93,41 @@ export function TrafficDashboard({
   return (
     <main className="min-h-full">
       <AppHeader onLogout={onLogout} userEmail={userEmail} />
-      <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
-        <section className="rounded-md border border-slate-200 bg-[#eef5fc] p-4 shadow-soft sm:p-6">
+      <div className="mx-auto max-w-7xl space-y-5 px-4 py-5 sm:px-6 lg:px-8">
+        {loading ? <KpiStripSkeleton /> : <KpiStrip feeds={feeds} />}
+
+        <section className="rounded-lg border border-slate-200 bg-surface p-4 shadow-sm sm:p-6">
           <div className="flex flex-col gap-5">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <label className="flex items-center gap-3 text-sm font-semibold text-slate-950">
-                  Select Area
-                  <select
-                    className="h-10 min-w-52 rounded-sm border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 outline-none transition focus:border-[#3157a8]"
-                    onChange={(event) => setSelectedFeedId(event.target.value)}
-                    value={selectedFeedId}
-                  >
-                    {visibleFeeds.map((feed) => (
-                      <option key={feed.id} value={feed.id}>
-                        {feed.area}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="flex items-center gap-3 text-sm font-semibold text-slate-950">
-                  Filter:
-                  <select
-                    className="h-10 min-w-32 rounded-sm border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 outline-none transition focus:border-[#3157a8]"
-                    onChange={(event) => handleStatusFilter(event.target.value as StatusFilter)}
-                    value={statusFilter}
-                  >
-                    {statusFilters.map((status) => (
-                      <option key={status} value={status}>
-                        {status === "All" ? "All cameras" : status}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </div>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <h2 className="text-sm font-bold uppercase tracking-wide text-slate-500">Cameras</h2>
+              <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                Filter
+                <select
+                  className="h-9 rounded-md border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 outline-none transition focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/30"
+                  onChange={(event) => handleStatusFilter(event.target.value as StatusFilter)}
+                  value={statusFilter}
+                >
+                  {statusFilters.map((status) => (
+                    <option key={status} value={status}>
+                      {status === "All" ? "All cameras" : status}
+                    </option>
+                  ))}
+                </select>
+              </label>
             </div>
+
+            <CameraSwitcher
+              feeds={visibleFeeds}
+              onSelect={setSelectedFeedId}
+              selectedId={selectedFeedId}
+            />
 
             <nav className="flex gap-5 border-b border-slate-300" aria-label="Dashboard sections">
               {tabs.map((tab) => (
                 <button
-                  className={`border-b-2 px-1 pb-3 text-sm font-bold transition ${
+                  className={`-mb-px border-b-2 px-1 pb-3 text-sm font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 ${
                     activeTab === tab
-                      ? "border-[#1c55c5] text-[#1c55c5]"
+                      ? "border-primary-bright text-primary-bright"
                       : "border-transparent text-slate-600 hover:text-slate-950"
                   }`}
                   key={tab}
@@ -129,18 +143,29 @@ export function TrafficDashboard({
               <div className="space-y-6">
                 <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_410px]">
                   <div className="space-y-5">
+                    <h3 className="text-sm font-semibold text-slate-700">
+                      <span className="font-bold uppercase tracking-wide text-slate-500">
+                        Selected camera
+                      </span>{" "}
+                      · {selectedFeed.title}
+                    </h3>
                     <div className="metric-grid grid gap-4">
-                      {selectedMetrics.map((metric) => (
-                        <MetricCard key={metric.label} metric={metric} />
-                      ))}
+                      {loading
+                        ? Array.from({ length: 4 }).map((_, i) => (
+                            <Skeleton className="h-[104px]" key={i} />
+                          ))
+                        : selectedMetrics.map((metric) => (
+                            <MetricCard key={metric.label} metric={metric} />
+                          ))}
                     </div>
-                    <VideoStage feed={selectedFeed} />
+                    <VideoStage feed={selectedFeed} key={selectedFeed.id} />
+                    <HistoryTrend feedId={selectedFeed.id} />
                   </div>
                   <SummaryPanels feed={selectedFeed} />
                 </div>
                 <section>
                   <h2 className="mb-3 text-lg font-semibold text-slate-950">Video Evidence</h2>
-                  <div className="grid auto-rows-fr grid-cols-5 gap-4">
+                  <div className="grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                     {visibleFeeds.map((feed) => (
                       <VideoCard
                         feed={feed}

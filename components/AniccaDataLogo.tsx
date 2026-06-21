@@ -56,7 +56,7 @@ export function AniccaDataLogo({
             Anicca Data
           </span>
           <span
-            className={`block font-semibold uppercase tracking-[0.12em] text-[#1B7FA5] ${s.sub}`}
+            className={`block font-semibold uppercase tracking-[0.12em] text-brand-teal ${s.sub}`}
           >
             Science Solutions
           </span>

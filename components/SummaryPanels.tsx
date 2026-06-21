@@ -9,11 +9,11 @@ export function SummaryPanels({ feed }: { feed: CameraFeed }) {
         <div className="grid gap-3 rounded-md border border-slate-200 bg-white p-3 shadow-sm sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
           {feed.analysis.vehicleClassifications.map((item) => (
             <div
-              className="flex items-center justify-between rounded-md bg-[#dfe9f5] px-4 py-4 text-sm font-bold text-slate-950"
+              className="flex items-center justify-between rounded-md bg-surface-muted px-4 py-4 text-sm font-bold text-slate-950"
               key={item.label}
             >
               <span>{item.label}</span>
-              <span className="text-[#214b9b]">
+              <span className="text-primary-deep">
                 <AnimatedNumber value={item.value} />
               </span>
             </div>
@@ -30,7 +30,7 @@ export function SummaryPanels({ feed }: { feed: CameraFeed }) {
               key={item.label}
             >
               <span className="text-sm font-semibold text-slate-950">{item.label}</span>
-              <span className="text-2xl font-bold text-violet-600">
+              <span className="text-2xl font-bold text-rose-600">
                 <AnimatedNumber value={item.value} />
               </span>
             </div>

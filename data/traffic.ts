@@ -18,6 +18,8 @@ export type Metric = {
   label: string;
   value: number;
   tone: "rose" | "amber" | "emerald" | "blue";
+  // percent difference vs the fleet average for this metric (computed in the UI)
+  delta?: number;
 };
 
 export type CountItem = {

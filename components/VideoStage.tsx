@@ -1,7 +1,10 @@
-import { Activity, CarFront, TriangleAlert } from "lucide-react";
+"use client";
+
+import { Activity, CarFront, TriangleAlert, VideoOff } from "lucide-react";
+import { useState } from "react";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
 import type { CameraFeed } from "@/data/traffic";
-import { videoSource } from "@/components/VideoCard";
+import { posterSource, videoSource } from "@/components/VideoCard";
 
 function videoType(format: CameraFeed["format"]) {
   if (format === "avi") {
@@ -16,6 +19,8 @@ function videoType(format: CameraFeed["format"]) {
 }
 
 export function VideoStage({ feed }: { feed: CameraFeed }) {
+  const [errored, setErrored] = useState(false);
+
   return (
     <section className="overflow-hidden rounded-md border border-slate-200 bg-white shadow-soft">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-4 py-3">
@@ -26,19 +31,28 @@ export function VideoStage({ feed }: { feed: CameraFeed }) {
 
       </div>
       <div className="relative bg-slate-950">
-        <video
-          key={feed.id}
-          autoPlay
-          className="aspect-video w-full object-cover"
-          controls
-          loop
-          muted
-          playsInline
-          preload="auto"
-        >
-          <source src={videoSource(feed.file)} type={videoType(feed.format)} />
-          This browser does not support this video format.
-        </video>
+        {errored ? (
+          <div className="flex aspect-video w-full flex-col items-center justify-center gap-2 text-slate-400">
+            <VideoOff size={28} />
+            <span className="text-sm font-semibold">Video unavailable</span>
+          </div>
+        ) : (
+          <video
+            key={feed.id}
+            autoPlay
+            className="aspect-video w-full object-cover"
+            controls
+            loop
+            muted
+            onError={() => setErrored(true)}
+            playsInline
+            poster={posterSource(feed.file)}
+            preload="auto"
+          >
+            <source src={videoSource(feed.file)} type={videoType(feed.format)} />
+            This browser does not support this video format.
+          </video>
+        )}
         <div className="pointer-events-none absolute left-4 top-4 hidden gap-2 sm:flex">
           <span className="rounded-md bg-slate-950/70 px-3 py-1 text-xs font-bold text-white">
             <AnimatedNumber value={feed.confidence} suffix="%" /> confidence
@@ -47,7 +61,7 @@ export function VideoStage({ feed }: { feed: CameraFeed }) {
       </div>
       <div className="grid gap-3 border-t border-slate-200 p-4 sm:grid-cols-3">
         <div className="flex items-center gap-3 rounded-md bg-slate-100 p-3">
-          <CarFront className="text-[#3157a8]" size={20} />
+          <CarFront className="text-primary" size={20} />
           <div>
             <p className="text-xs font-semibold text-slate-500">Vehicles</p>
             <p className="text-lg font-bold text-slate-950">

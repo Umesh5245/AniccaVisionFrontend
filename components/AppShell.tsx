@@ -1,5 +1,6 @@
 "use client";
 
+import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { DataProvider } from "@/components/DataContext";
 import { LoginScreen } from "@/components/LoginScreen";
@@ -12,22 +13,34 @@ export function AppShell() {
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    setUserEmail(window.localStorage.getItem(storageKey));
+    // "Remember me" persists in localStorage; otherwise sessionStorage (cleared
+    // when the tab closes).
+    setUserEmail(
+      window.localStorage.getItem(storageKey) ?? window.sessionStorage.getItem(storageKey)
+    );
     setIsReady(true);
   }, []);
 
-  function handleLogin(email: string) {
-    window.localStorage.setItem(storageKey, email);
+  function handleLogin(email: string, remember: boolean) {
+    const store = remember ? window.localStorage : window.sessionStorage;
+    const other = remember ? window.sessionStorage : window.localStorage;
+    store.setItem(storageKey, email);
+    other.removeItem(storageKey);
     setUserEmail(email);
   }
 
   function handleLogout() {
     window.localStorage.removeItem(storageKey);
+    window.sessionStorage.removeItem(storageKey);
     setUserEmail(null);
   }
 
   if (!isReady) {
-    return <div className="min-h-screen bg-[#eef5fc]" />;
+    return (
+      <div className="grid min-h-screen place-items-center bg-surface-tint text-primary">
+        <Loader2 className="animate-spin" size={28} />
+      </div>
+    );
   }
 
   if (!userEmail) {

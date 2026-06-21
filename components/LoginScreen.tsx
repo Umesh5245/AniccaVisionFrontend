@@ -4,10 +4,15 @@ import { Eye, LockKeyhole, Mail, ShieldCheck } from "lucide-react";
 import { FormEvent, useState } from "react";
 import { AniccaDataLogo } from "@/components/AniccaDataLogo";
 
-export function LoginScreen({ onLogin }: { onLogin: (email: string) => void }) {
+export function LoginScreen({
+  onLogin
+}: {
+  onLogin: (email: string, remember: boolean) => void;
+}) {
   const [email, setEmail] = useState("admin@aniccavision.ai");
   const [password, setPassword] = useState("traffic123");
   const [showPassword, setShowPassword] = useState(false);
+  const [remember, setRemember] = useState(true);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -16,11 +21,11 @@ export function LoginScreen({ onLogin }: { onLogin: (email: string) => void }) {
       return;
     }
 
-    onLogin(email.trim());
+    onLogin(email.trim(), remember);
   }
 
   return (
-    <main className="grid min-h-full bg-[#eef5fc] lg:grid-cols-[1fr_460px]">
+    <main className="grid min-h-full bg-surface-tint lg:grid-cols-[1fr_460px]">
       <section className="relative hidden overflow-hidden bg-slate-950 lg:block">
         <video
           autoPlay
@@ -34,7 +39,7 @@ export function LoginScreen({ onLogin }: { onLogin: (email: string) => void }) {
         </video>
         <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/65 to-transparent" />
         <div className="absolute left-10 top-10 flex items-center gap-3">
-          <div className="grid h-10 w-10 place-items-center rounded-md bg-[#3157a8] text-sm font-black text-white">
+          <div className="grid h-10 w-10 place-items-center rounded-md bg-primary text-sm font-black text-white">
             AV
           </div>
           <span className="text-base font-semibold text-white">Anicca Vision</span>
@@ -54,10 +59,10 @@ export function LoginScreen({ onLogin }: { onLogin: (email: string) => void }) {
           <div className="mb-8">
             <AniccaDataLogo className="mb-6" size="md" />
             <div className="mb-5 flex items-center gap-3 lg:hidden">
-              <div className="grid h-10 w-10 place-items-center rounded-md bg-[#3157a8] text-sm font-black text-white">
+              <div className="grid h-10 w-10 place-items-center rounded-md bg-primary text-sm font-black text-white">
                 AV
               </div>
-              <span className="text-base font-semibold text-[#3157a8]">Anicca Vision</span>
+              <span className="text-base font-semibold text-primary">Anicca Vision</span>
             </div>
             <div className="inline-flex items-center gap-2 rounded-md bg-emerald-50 px-3 py-2 text-sm font-bold text-emerald-700">
               <ShieldCheck size={17} />
@@ -72,7 +77,7 @@ export function LoginScreen({ onLogin }: { onLogin: (email: string) => void }) {
           <form className="space-y-5" onSubmit={handleSubmit}>
             <label className="block">
               <span className="text-sm font-bold text-slate-800">Email</span>
-              <span className="mt-2 flex h-12 items-center gap-3 rounded-md border border-slate-300 bg-white px-3 focus-within:border-[#3157a8]">
+              <span className="mt-2 flex h-12 items-center gap-3 rounded-md border border-slate-300 bg-white px-3 focus-within:border-primary">
                 <Mail className="shrink-0 text-slate-400" size={18} />
                 <input
                   className="h-full min-w-0 flex-1 border-0 bg-transparent text-sm font-medium text-slate-950 outline-none"
@@ -85,7 +90,7 @@ export function LoginScreen({ onLogin }: { onLogin: (email: string) => void }) {
 
             <label className="block">
               <span className="text-sm font-bold text-slate-800">Password</span>
-              <span className="mt-2 flex h-12 items-center gap-3 rounded-md border border-slate-300 bg-white px-3 focus-within:border-[#3157a8]">
+              <span className="mt-2 flex h-12 items-center gap-3 rounded-md border border-slate-300 bg-white px-3 focus-within:border-primary">
                 <LockKeyhole className="shrink-0 text-slate-400" size={18} />
                 <input
                   className="h-full min-w-0 flex-1 border-0 bg-transparent text-sm font-medium text-slate-950 outline-none"
@@ -104,18 +109,18 @@ export function LoginScreen({ onLogin }: { onLogin: (email: string) => void }) {
               </span>
             </label>
 
-            <div className="flex items-center justify-between gap-3">
-              <label className="flex items-center gap-2 text-sm font-semibold text-slate-600">
-                <input className="h-4 w-4 accent-[#3157a8]" defaultChecked type="checkbox" />
-                Remember me
-              </label>
-              <button className="text-sm font-bold text-[#3157a8]" type="button">
-                Reset password
-              </button>
-            </div>
+            <label className="flex items-center gap-2 text-sm font-semibold text-slate-600">
+              <input
+                checked={remember}
+                className="h-4 w-4 accent-primary"
+                onChange={(event) => setRemember(event.target.checked)}
+                type="checkbox"
+              />
+              Remember me
+            </label>
 
             <button
-              className="h-12 w-full rounded-md bg-[#3157a8] text-sm font-bold text-white transition hover:bg-[#264985]"
+              className="h-12 w-full rounded-md bg-primary text-sm font-bold text-white transition hover:bg-primary-dark"
               type="submit"
             >
               Sign in

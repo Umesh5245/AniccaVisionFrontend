@@ -1,4 +1,7 @@
-import { Radio, ShieldCheck } from "lucide-react";
+"use client";
+
+import { Check, ShieldCheck, VideoOff } from "lucide-react";
+import { useRef, useState, type KeyboardEvent } from "react";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
 import type { CameraFeed } from "@/data/traffic";
 
@@ -18,6 +21,10 @@ export function videoSource(file: string) {
   return `/api/video/${encodeURIComponent(file)}`;
 }
 
+export function posterSource(file: string) {
+  return `/posters/${encodeURIComponent(file)}.jpg`;
+}
+
 export function VideoCard({
   feed,
   selected,
@@ -27,28 +34,56 @@ export function VideoCard({
   selected: boolean;
   onSelect: () => void;
 }) {
+  const [errored, setErrored] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  function handleKeyDown(event: KeyboardEvent<HTMLElement>) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      onSelect();
+    }
+  }
+
   return (
     <article
-      className={`group flex h-full flex-col overflow-hidden rounded-md border bg-white text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-soft ${
-        selected ? "border-[#3157a8] ring-2 ring-[#3157a8]/15" : "border-slate-200"
+      aria-label={`View ${feed.title} in main player`}
+      aria-pressed={selected}
+      className={`group flex h-full cursor-pointer flex-col overflow-hidden rounded-md border bg-white text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${
+        selected ? "border-primary ring-2 ring-primary/15" : "border-slate-200"
       }`}
+      onClick={onSelect}
+      onKeyDown={handleKeyDown}
+      role="button"
+      tabIndex={0}
     >
-      <div className="relative aspect-video overflow-hidden bg-slate-950">
-        <video
-          autoPlay
-          className="h-full w-full object-contain opacity-90 transition group-hover:opacity-100"
-          controls
-          loop
-          muted
-          playsInline
-          preload="auto"
-        >
-          <source src={videoSource(feed.file)} type={videoType(feed.format)} />
-        </video>
-        <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-md bg-white/90 px-2 py-1 text-xs font-semibold text-slate-800">
-          <Radio size={13} />
-          {feed.status}
-        </span>
+      {/* Stop clicks on the video (play/seek controls) from selecting the card;
+          play on hover instead of autoplaying every card at once. */}
+      <div
+        className="relative aspect-video overflow-hidden bg-slate-950"
+        onClick={(event) => event.stopPropagation()}
+        onMouseEnter={() => videoRef.current?.play().catch(() => {})}
+        onMouseLeave={() => videoRef.current?.pause()}
+      >
+        {errored ? (
+          <div className="flex h-full w-full flex-col items-center justify-center gap-1 text-slate-400">
+            <VideoOff size={22} />
+            <span className="text-xs font-semibold">Video unavailable</span>
+          </div>
+        ) : (
+          <video
+            className="h-full w-full object-contain opacity-90 transition group-hover:opacity-100"
+            controls
+            loop
+            muted
+            onError={() => setErrored(true)}
+            playsInline
+            poster={posterSource(feed.file)}
+            preload="metadata"
+            ref={videoRef}
+          >
+            <source src={videoSource(feed.file)} type={videoType(feed.format)} />
+          </video>
+        )}
         <span className="absolute bottom-3 right-3 rounded-md bg-slate-950/80 px-2 py-1 text-xs font-semibold text-white">
           {feed.format.toUpperCase()}
         </span>
@@ -78,17 +113,23 @@ export function VideoCard({
             AI score
           </span>
         </div>
-        <p className="inline-flex items-center gap-1 text-xs font-semibold text-[#3157a8]">
+        <p className="inline-flex items-center gap-1 text-xs font-semibold text-primary">
           <ShieldCheck size={14} />
           {feed.highlight}
         </p>
-        <button
-          className="mt-auto h-9 w-full rounded-md bg-[#3157a8] text-sm font-bold text-white transition hover:bg-[#264985]"
-          onClick={onSelect}
-          type="button"
+        <p
+          className={`mt-auto inline-flex items-center gap-1 text-xs font-bold ${
+            selected ? "text-primary" : "text-slate-500 group-hover:text-primary"
+          }`}
         >
-          View in main player
-        </button>
+          {selected ? (
+            <>
+              <Check size={14} /> Showing in main player
+            </>
+          ) : (
+            "Click to view in main player"
+          )}
+        </p>
       </div>
     </article>
   );

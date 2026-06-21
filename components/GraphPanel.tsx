@@ -1,6 +1,6 @@
 "use client";
 
-import { Download } from "lucide-react";
+import { BarChart3, Download } from "lucide-react";
 import {
   Bar,
   BarChart,
@@ -13,6 +13,7 @@ import {
 } from "recharts";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
 import { useDataset } from "@/components/DataContext";
+import { EmptyState } from "@/components/EmptyState";
 import type { CameraFeed } from "@/data/traffic";
 import { downloadCsv } from "@/lib/csv";
 
@@ -57,6 +58,10 @@ function StackedBars({
   data: readonly Record<string, number | string>[];
   series: readonly { key: string; label: string; color: string }[];
 }) {
+  if (data.length === 0) {
+    return <EmptyState icon={BarChart3} title="No timeline data for this camera" />;
+  }
+
   return (
     <div className="mt-6 h-64 w-full">
       <ResponsiveContainer height="100%" width="100%">
