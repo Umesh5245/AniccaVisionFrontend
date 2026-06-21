@@ -2,9 +2,8 @@
 
 import { Activity, CarFront, TriangleAlert, VideoOff } from "lucide-react";
 import { useState } from "react";
-import { AnimatedNumber } from "@/components/AnimatedNumber";
-import type { CameraFeed } from "@/data/traffic";
-import { posterSource, videoSource } from "@/components/VideoCard";
+import { AnimatedNumber } from "./AnimatedNumber";
+import type { CameraFeed } from "./types";
 
 function videoType(format: CameraFeed["format"]) {
   if (format === "avi") {
@@ -18,7 +17,15 @@ function videoType(format: CameraFeed["format"]) {
   return "video/mp4";
 }
 
-export function VideoStage({ feed }: { feed: CameraFeed }) {
+export function VideoStage({
+  feed,
+  videoSrc,
+  posterSrc
+}: {
+  feed: CameraFeed;
+  videoSrc: string;
+  posterSrc: string;
+}) {
   const [errored, setErrored] = useState(false);
 
   return (
@@ -28,7 +35,6 @@ export function VideoStage({ feed }: { feed: CameraFeed }) {
           <h2 className="text-base font-semibold text-slate-950">{feed.title}</h2>
           <p className="text-sm font-medium text-slate-500">{feed.area}</p>
         </div>
-
       </div>
       <div className="relative bg-slate-950">
         {errored ? (
@@ -46,10 +52,10 @@ export function VideoStage({ feed }: { feed: CameraFeed }) {
             muted
             onError={() => setErrored(true)}
             playsInline
-            poster={posterSource(feed.file)}
+            poster={posterSrc}
             preload="auto"
           >
-            <source src={videoSource(feed.file)} type={videoType(feed.format)} />
+            <source src={videoSrc} type={videoType(feed.format)} />
             This browser does not support this video format.
           </video>
         )}

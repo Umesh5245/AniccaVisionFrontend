@@ -1,0 +1,32 @@
+{
+  "name": "@anicca/ui",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Anicca Vision presentational component library (design-system).",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./styles.css": "./dist/index.css",
+    "./tailwind-preset": "./tailwind-preset.cjs"
+  },
+  "files": ["dist", "tailwind-preset.cjs"],
+  "scripts": {
+    "build": "tsup && npm run build:css",
+    "build:css": "tailwindcss -i ./src/styles.css -o ./dist/index.css --minify"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18",
+    "lucide-react": ">=0.4",
+    "recharts": ">=2"
+  },
+  "devDependencies": {
+    "tsup": "^8.3.5"
+  }
+}

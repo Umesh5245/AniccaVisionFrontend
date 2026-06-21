@@ -2,20 +2,24 @@
 
 import { Cctv } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import {
+  CameraSwitcher,
+  EmptyState,
+  GraphPanel,
+  KpiStrip,
+  KpiStripSkeleton,
+  MetricCard,
+  Skeleton,
+  SummaryPanels,
+  VideoCard,
+  VideoStage,
+  ViolationTable
+} from "@anicca/ui";
 import { AppHeader } from "@/components/AppHeader";
-import { CameraSwitcher } from "@/components/CameraSwitcher";
 import { useDataset } from "@/components/DataContext";
-import { EmptyState } from "@/components/EmptyState";
-import { GraphPanel } from "@/components/GraphPanel";
 import { HistoryTrend } from "@/components/HistoryTrend";
-import { KpiStrip, KpiStripSkeleton } from "@/components/KpiStrip";
-import { MetricCard } from "@/components/MetricCard";
-import { Skeleton } from "@/components/Skeleton";
-import { SummaryPanels } from "@/components/SummaryPanels";
-import { VideoCard } from "@/components/VideoCard";
-import { VideoStage } from "@/components/VideoStage";
-import { ViolationTable } from "@/components/ViolationTable";
 import { metricsForFeed } from "@/data/traffic";
+import { posterSource, videoSource } from "@/lib/media";
 
 const tabs = ["Data View", "Graph", "Violations"] as const;
 
@@ -82,7 +86,7 @@ export function TrafficDashboard({
         <AppHeader onLogout={onLogout} userEmail={userEmail} />
         <EmptyState
           className="mt-10"
-          hint="Analyze a clip from Manage cameras to populate the dashboard."
+          hint="Connect the analysis backend or check the data source."
           icon={Cctv}
           title="No camera feeds yet"
         />
@@ -119,6 +123,7 @@ export function TrafficDashboard({
             <CameraSwitcher
               feeds={visibleFeeds}
               onSelect={setSelectedFeedId}
+              posterFor={(feed) => posterSource(feed.file)}
               selectedId={selectedFeedId}
             />
 
@@ -158,7 +163,12 @@ export function TrafficDashboard({
                             <MetricCard key={metric.label} metric={metric} />
                           ))}
                     </div>
-                    <VideoStage feed={selectedFeed} key={selectedFeed.id} />
+                    <VideoStage
+                      feed={selectedFeed}
+                      key={selectedFeed.id}
+                      posterSrc={posterSource(selectedFeed.file)}
+                      videoSrc={videoSource(selectedFeed.file)}
+                    />
                     <HistoryTrend feedId={selectedFeed.id} />
                   </div>
                   <SummaryPanels feed={selectedFeed} />
@@ -171,7 +181,9 @@ export function TrafficDashboard({
                         feed={feed}
                         key={feed.id}
                         onSelect={() => setSelectedFeedId(feed.id)}
+                        posterSrc={posterSource(feed.file)}
                         selected={feed.id === selectedFeed.id}
+                        videoSrc={videoSource(feed.file)}
                       />
                     ))}
                   </div>
@@ -179,9 +191,20 @@ export function TrafficDashboard({
               </div>
             )}
 
-            {activeTab === "Graph" && <GraphPanel feed={selectedFeed} />}
+            {activeTab === "Graph" && (
+              <GraphPanel
+                feed={selectedFeed}
+                vehicleTimeline={dataset.vehicleTimelineByFeed[selectedFeed.id] ?? []}
+                violationTimeline={dataset.violationTimelineByFeed[selectedFeed.id] ?? []}
+              />
+            )}
 
-            {activeTab === "Violations" && <ViolationTable feed={selectedFeed} />}
+            {activeTab === "Violations" && (
+              <ViolationTable
+                feed={selectedFeed}
+                rows={dataset.tableRows.filter((row) => row.feedId === selectedFeed.id)}
+              />
+            )}
           </div>
         </section>
       </div>

@@ -1,5 +1,5 @@
-import { AnimatedNumber } from "@/components/AnimatedNumber";
-import type { CameraFeed } from "@/data/traffic";
+import { AnimatedNumber } from "./AnimatedNumber";
+import type { CameraFeed } from "./types";
 
 export function SummaryPanels({ feed }: { feed: CameraFeed }) {
   return (

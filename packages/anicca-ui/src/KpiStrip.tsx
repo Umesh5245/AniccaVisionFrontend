@@ -1,7 +1,7 @@
 import { Car, Cctv, Gauge, TriangleAlert, type LucideIcon } from "lucide-react";
-import { AnimatedNumber } from "@/components/AnimatedNumber";
-import { Skeleton } from "@/components/Skeleton";
-import type { CameraFeed } from "@/data/traffic";
+import { AnimatedNumber } from "./AnimatedNumber";
+import { Skeleton } from "./Skeleton";
+import type { CameraFeed } from "./types";
 
 type Kpi = {
   label: string;

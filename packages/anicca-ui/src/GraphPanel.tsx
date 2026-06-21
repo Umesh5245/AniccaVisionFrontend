@@ -11,11 +11,10 @@ import {
   XAxis,
   YAxis
 } from "recharts";
-import { AnimatedNumber } from "@/components/AnimatedNumber";
-import { useDataset } from "@/components/DataContext";
-import { EmptyState } from "@/components/EmptyState";
-import type { CameraFeed } from "@/data/traffic";
-import { downloadCsv } from "@/lib/csv";
+import { AnimatedNumber } from "./AnimatedNumber";
+import { downloadCsv } from "./csv";
+import { EmptyState } from "./EmptyState";
+import type { CameraFeed, VehicleBucket, ViolationBucket } from "./types";
 
 const vehicleColumns = [
   { key: "label", label: "Time" },
@@ -81,11 +80,7 @@ function StackedBars({
             width={36}
           />
           <Tooltip
-            contentStyle={{
-              borderRadius: 8,
-              border: "1px solid #e2e8f0",
-              fontSize: 12
-            }}
+            contentStyle={{ borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 12 }}
             cursor={{ fill: "rgba(49, 87, 168, 0.06)" }}
           />
           <Legend
@@ -108,11 +103,15 @@ function StackedBars({
   );
 }
 
-export function GraphPanel({ feed }: { feed: CameraFeed }) {
-  const { dataset } = useDataset();
-  const vehicleTimeline = dataset.vehicleTimelineByFeed[feed.id] ?? [];
-  const violationTimeline = dataset.violationTimelineByFeed[feed.id] ?? [];
-
+export function GraphPanel({
+  feed,
+  vehicleTimeline,
+  violationTimeline
+}: {
+  feed: CameraFeed;
+  vehicleTimeline: VehicleBucket[];
+  violationTimeline: ViolationBucket[];
+}) {
   return (
     <div className="grid gap-6 xl:grid-cols-2">
       <section className="rounded-md border border-slate-200 bg-white p-5 shadow-soft">

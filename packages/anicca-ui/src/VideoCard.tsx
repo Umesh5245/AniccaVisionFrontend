@@ -2,8 +2,8 @@
 
 import { Check, ShieldCheck, VideoOff } from "lucide-react";
 import { useRef, useState, type KeyboardEvent } from "react";
-import { AnimatedNumber } from "@/components/AnimatedNumber";
-import type { CameraFeed } from "@/data/traffic";
+import { AnimatedNumber } from "./AnimatedNumber";
+import type { CameraFeed } from "./types";
 
 function videoType(format: CameraFeed["format"]) {
   if (format === "avi") {
@@ -17,21 +17,17 @@ function videoType(format: CameraFeed["format"]) {
   return "video/mp4";
 }
 
-export function videoSource(file: string) {
-  return `/api/video/${encodeURIComponent(file)}`;
-}
-
-export function posterSource(file: string) {
-  return `/posters/${encodeURIComponent(file)}.jpg`;
-}
-
 export function VideoCard({
   feed,
   selected,
+  videoSrc,
+  posterSrc,
   onSelect
 }: {
   feed: CameraFeed;
   selected: boolean;
+  videoSrc: string;
+  posterSrc: string;
   onSelect: () => void;
 }) {
   const [errored, setErrored] = useState(false);
@@ -77,11 +73,11 @@ export function VideoCard({
             muted
             onError={() => setErrored(true)}
             playsInline
-            poster={posterSource(feed.file)}
+            poster={posterSrc}
             preload="metadata"
             ref={videoRef}
           >
-            <source src={videoSource(feed.file)} type={videoType(feed.format)} />
+            <source src={videoSrc} type={videoType(feed.format)} />
           </video>
         )}
         <span className="absolute bottom-3 right-3 rounded-md bg-slate-950/80 px-2 py-1 text-xs font-semibold text-white">

@@ -1,4 +1,4 @@
-import { AniccaDataLogo } from "@/components/AniccaDataLogo";
+import { AniccaDataLogo } from "@anicca/ui";
 
 export function SiteFooter() {
   return (

@@ -7,8 +7,8 @@ import {
   Truck,
   type LucideIcon
 } from "lucide-react";
-import { AnimatedNumber } from "@/components/AnimatedNumber";
-import type { Metric } from "@/data/traffic";
+import { AnimatedNumber } from "./AnimatedNumber";
+import type { Metric } from "./types";
 
 const toneStyles: Record<
   Metric["tone"],

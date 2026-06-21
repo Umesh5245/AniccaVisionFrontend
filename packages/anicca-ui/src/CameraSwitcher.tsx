@@ -2,16 +2,17 @@
 
 import { Cctv } from "lucide-react";
 import { useState } from "react";
-import { posterSource } from "@/components/VideoCard";
-import type { CameraFeed } from "@/data/traffic";
+import type { CameraFeed } from "./types";
 
 function Thumb({
   feed,
   selected,
+  posterSrc,
   onSelect
 }: {
   feed: CameraFeed;
   selected: boolean;
+  posterSrc: string;
   onSelect: () => void;
 }) {
   const [errored, setErrored] = useState(false);
@@ -41,7 +42,7 @@ function Thumb({
             alt=""
             className="h-full w-full object-cover transition group-hover:opacity-90"
             onError={() => setErrored(true)}
-            src={posterSource(feed.file)}
+            src={posterSrc}
           />
         )}
         <span
@@ -62,10 +63,12 @@ function Thumb({
 export function CameraSwitcher({
   feeds,
   selectedId,
+  posterFor,
   onSelect
 }: {
   feeds: CameraFeed[];
   selectedId: string;
+  posterFor: (feed: CameraFeed) => string;
   onSelect: (id: string) => void;
 }) {
   return (
@@ -75,6 +78,7 @@ export function CameraSwitcher({
           feed={feed}
           key={feed.id}
           onSelect={() => onSelect(feed.id)}
+          posterSrc={posterFor(feed)}
           selected={feed.id === selectedId}
         />
       ))}

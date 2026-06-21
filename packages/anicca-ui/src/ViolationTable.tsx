@@ -2,10 +2,9 @@
 
 import { ChevronDown, ChevronsUpDown, ChevronUp, Download, FileSearch, Search } from "lucide-react";
 import { useMemo, useState } from "react";
-import { useDataset } from "@/components/DataContext";
-import { EmptyState } from "@/components/EmptyState";
-import type { CameraFeed, TableRow } from "@/data/traffic";
-import { downloadCsv } from "@/lib/csv";
+import { downloadCsv } from "./csv";
+import { EmptyState } from "./EmptyState";
+import type { CameraFeed, TableRow } from "./types";
 
 const csvColumns = [
   { key: "plate", label: "Vehicle Number" },
@@ -38,8 +37,7 @@ const columns: { key: keyof TableRow; label: string; sortKey?: SortKey }[] = [
   { key: "timestamp", label: "Time Stamp", sortKey: "timestamp" }
 ];
 
-export function ViolationTable({ feed }: { feed: CameraFeed }) {
-  const { dataset } = useDataset();
+export function ViolationTable({ feed, rows }: { feed: CameraFeed; rows: TableRow[] }) {
   const [activeFilter, setActiveFilter] = useState<string>("All");
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<{ key: SortKey; dir: "asc" | "desc" }>({
@@ -51,14 +49,13 @@ export function ViolationTable({ feed }: { feed: CameraFeed }) {
 
   const feedRows = useMemo(() => {
     const q = query.trim().toLowerCase();
-    const rows = dataset.tableRows
-      .filter((row) => row.feedId === feed.id)
+    const filtered = rows
       .filter((row) => (match ? row.violation.toLowerCase().includes(match) : true))
       .filter(
         (row) => !q || row.plate.toLowerCase().includes(q) || row.vehicle.toLowerCase().includes(q)
       );
 
-    return [...rows].sort((a, b) => {
+    return [...filtered].sort((a, b) => {
       let av: number | string;
       let bv: number | string;
       if (sort.key === "ocrConfidence") {
@@ -75,7 +72,7 @@ export function ViolationTable({ feed }: { feed: CameraFeed }) {
       if (av > bv) return sort.dir === "asc" ? 1 : -1;
       return 0;
     });
-  }, [dataset.tableRows, feed.id, match, query, sort]);
+  }, [rows, match, query, sort]);
 
   function toggleSort(key: SortKey) {
     setSort((prev) =>

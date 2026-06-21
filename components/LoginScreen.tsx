@@ -2,7 +2,7 @@
 
 import { Eye, LockKeyhole, Mail, ShieldCheck } from "lucide-react";
 import { FormEvent, useState } from "react";
-import { AniccaDataLogo } from "@/components/AniccaDataLogo";
+import { AniccaDataLogo } from "@anicca/ui";
 
 export function LoginScreen({
   onLogin

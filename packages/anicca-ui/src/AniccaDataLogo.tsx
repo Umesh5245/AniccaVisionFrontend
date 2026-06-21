@@ -1,6 +1,5 @@
-// Brand lockup for Anicca Data Science Solutions, recreated as an inline SVG
-// (magenta / yellow / teal "A" mark + wordmark). To use the exact brand asset
-// instead, drop the file in /public and swap <Mark /> for an <img> / next/image.
+// Brand lockup for Anicca Data Science Solutions, an inline SVG "A" mark +
+// wordmark. Self-contained; uses the `brand-teal` token for the subtitle.
 type Size = "sm" | "md" | "lg";
 
 const SIZES: Record<Size, { mark: string; title: string; sub: string; gap: string }> = {
@@ -24,11 +23,9 @@ function Mark({ className }: { className?: string }) {
       viewBox="0 0 64 44"
       xmlns="http://www.w3.org/2000/svg"
     >
-      {/* left leg — magenta ribbons */}
       <path d="M6 40 L30 10" stroke={MAGENTA} />
       <path d="M13 40 L30 18" stroke={MAGENTA} />
       <path d="M20 40 L30 26" stroke={MAGENTA} />
-      {/* right leg — yellow + teal ribbons */}
       <path d="M34 10 L58 40" stroke={YELLOW} />
       <path d="M34 18 L51 40" stroke={TEAL} />
       <path d="M34 26 L44 40" stroke={TEAL} />
