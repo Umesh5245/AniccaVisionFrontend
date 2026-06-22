@@ -33,7 +33,7 @@ export type {
 export const cameraFeeds: CameraFeed[] = [
   {
     id: "bangalore-flow",
-    title: "Bangalore Traffic Flow",
+    title: "Bangalore Traffic Flow Car and Heavy Vehicle Detection",
     area: "Main Street",
     file: "demo_bangalore_traffic_h264.mp4",
     format: "mp4",
@@ -43,20 +43,20 @@ export const cameraFeeds: CameraFeed[] = [
     confidence: 56,
     highlight: "Signal queue rising",
     analysis: {
-      pedestrianLaneCrossings: 42,
+      pedestrianLaneCrossings: 0,
       heavyMotorVehicles: 30,
-      wrongLaneVehicles: 3,
+      wrongLaneVehicles: 0,
       vehicleClassifications: [
         { label: "Cars", value: 35 },
         { label: "Motorcycles", value: 0 },
         { label: "Trucks", value: 22 },
         { label: "Buses", value: 8 },
-        { label: "Bicycles", value: 1 }
+        { label: "Bicycles", value: 0 }
       ],
       violationSummary: [
         { label: "Undetected Infiltrations", value: 9 },
         { label: "Speed Detection", value: 7 },
-        { label: "Illegal Parking", value: 10 },
+        { label: "Illegal Parking", value: 0 },
         { label: "Stop/Yield Violations", value: 3 }
       ]
     }
@@ -73,8 +73,8 @@ export const cameraFeeds: CameraFeed[] = [
     confidence: 51,
     highlight: "Peak congestion",
     analysis: {
-      pedestrianLaneCrossings: 2,
-      heavyMotorVehicles: 17,
+      pedestrianLaneCrossings: 0,
+      heavyMotorVehicles: 0,
       wrongLaneVehicles: 0,
       vehicleClassifications: [
         { label: "Cars", value: 87 },
@@ -86,7 +86,7 @@ export const cameraFeeds: CameraFeed[] = [
       violationSummary: [
         { label: "Undetected Infiltrations", value: 0 },
         { label: "Speed Detection", value: 0 },
-        { label: "Illegal Parking", value: 20 },
+        { label: "Illegal Parking", value: 3 },
         { label: "Stop/Yield Violations", value: 0 }
       ]
     }
@@ -98,7 +98,7 @@ export const cameraFeeds: CameraFeed[] = [
     file: "no_parking_h264.mp4",
     format: "mp4",
     status: "Review",
-    vehicles: 70,
+    vehicles: 15,
     violations: 13,
     confidence: 62,
     highlight: "Restricted bay activity",
@@ -107,15 +107,15 @@ export const cameraFeeds: CameraFeed[] = [
       heavyMotorVehicles: 11,
       wrongLaneVehicles: 2,
       vehicleClassifications: [
-        { label: "Cars", value: 43 },
-        { label: "Motorcycles", value: 16 },
-        { label: "Trucks", value: 9 },
-        { label: "Buses", value: 2 },
+        { label: "Cars", value: 9 },
+        { label: "Motorcycles", value: 6 },
+        { label: "Trucks", value: 0 },
+        { label: "Buses", value: 0 },
         { label: "Bicycles", value: 0 }
       ],
       violationSummary: [
         { label: "Undetected Infiltrations", value: 8 },
-        { label: "Speed Detection", value: 3 },
+        { label: "Speed Detection", value: 0 },
         { label: "Illegal Parking", value: 2 },
         { label: "Stop/Yield Violations", value: 0 }
       ]
@@ -315,7 +315,7 @@ export const violationTimelineByFeed: Record<string, ViolationBucket[]> = {
 export const tableRows: TableRow[] = [
   {
     feedId: "plate-capture",
-    plate: "593YB",
+    plate: "A593YB",
     vehicle: "Car",
     violation: "No violation",
     speed: "--",
@@ -355,7 +355,7 @@ export const tableRows: TableRow[] = [
   },
   {
     feedId: "plate-capture",
-    plate: "KAX639",
+    plate: "AX639",
     vehicle: "Car",
     violation: "No violation",
     speed: "--",
@@ -405,7 +405,7 @@ export const tableRows: TableRow[] = [
   },
   {
     feedId: "plate-capture",
-    plate: "FEVOZ7",
+    plate: "JEVO77",
     vehicle: "Car",
     violation: "No violation",
     speed: "--",

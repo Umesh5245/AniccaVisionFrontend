@@ -1,5 +1,3 @@
-import { AniccaDataLogo } from "@anicca/ui";
-
 export function SiteFooter() {
   return (
     <footer className="shrink-0 border-t border-slate-200 bg-white">
@@ -11,7 +9,11 @@ export function SiteFooter() {
           <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
             Powered by
           </span>
-          <AniccaDataLogo size="sm" />
+          <img
+            alt="Anicca"
+            className="h-8 w-auto object-contain"
+            src="/anicca-powered-by-logo.png"
+          />
         </div>
       </div>
     </footer>

@@ -38,11 +38,12 @@ export function LoginScreen({
           <source src="/api/video/demo_bangalore_traffic_h264.mp4" type="video/mp4" />
         </video>
         <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/65 to-transparent" />
-        <div className="absolute left-10 top-10 flex items-center gap-3">
-          <div className="grid h-10 w-10 place-items-center rounded-md bg-primary text-sm font-black text-white">
-            AV
-          </div>
-          <span className="text-base font-semibold text-white">Anicca Vision</span>
+        <div className="absolute left-10 top-10">
+          <AniccaDataLogo
+            size="sm"
+            subtitleClassName="text-sky-200"
+            textClassName="text-white"
+          />
         </div>
         <div className="absolute bottom-10 left-10 max-w-xl">
           <p className="text-sm font-bold uppercase tracking-[0.18em] text-sky-200">
@@ -58,11 +59,8 @@ export function LoginScreen({
         <div className="w-full max-w-md rounded-md border border-slate-200 bg-white p-6 shadow-soft sm:p-8">
           <div className="mb-8">
             <AniccaDataLogo className="mb-6" size="md" />
-            <div className="mb-5 flex items-center gap-3 lg:hidden">
-              <div className="grid h-10 w-10 place-items-center rounded-md bg-primary text-sm font-black text-white">
-                AV
-              </div>
-              <span className="text-base font-semibold text-primary">Anicca Vision</span>
+            <div className="mb-5 lg:hidden">
+              <AniccaDataLogo size="sm" />
             </div>
             <div className="inline-flex items-center gap-2 rounded-md bg-emerald-50 px-3 py-2 text-sm font-bold text-emerald-700">
               <ShieldCheck size={17} />

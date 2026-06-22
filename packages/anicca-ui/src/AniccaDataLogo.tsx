@@ -1,61 +1,44 @@
-// Brand lockup for Anicca Data Science Solutions, an inline SVG "A" mark +
-// wordmark. Self-contained; uses the `brand-teal` token for the subtitle.
+// Brand lockup for Anicca Vision, using the app-owned PNG mark in /public.
 type Size = "sm" | "md" | "lg";
 
 const SIZES: Record<Size, { mark: string; title: string; sub: string; gap: string }> = {
-  sm: { mark: "h-6", title: "text-sm", sub: "text-[8px]", gap: "gap-2" },
-  md: { mark: "h-9", title: "text-lg", sub: "text-[10px]", gap: "gap-2.5" },
-  lg: { mark: "h-14", title: "text-3xl", sub: "text-xs", gap: "gap-3" }
+  sm: { mark: "h-7 w-7", title: "text-sm", sub: "text-[8px]", gap: "gap-2" },
+  md: { mark: "h-10 w-10", title: "text-lg", sub: "text-[10px]", gap: "gap-2.5" },
+  lg: { mark: "h-14 w-14", title: "text-3xl", sub: "text-xs", gap: "gap-3" }
 };
-
-const MAGENTA = "#A8408C";
-const YELLOW = "#F2C200";
-const TEAL = "#1B7FA5";
-
-function Mark({ className }: { className?: string }) {
-  return (
-    <svg
-      aria-hidden
-      className={className}
-      fill="none"
-      strokeLinecap="round"
-      strokeWidth={5}
-      viewBox="0 0 64 44"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path d="M6 40 L30 10" stroke={MAGENTA} />
-      <path d="M13 40 L30 18" stroke={MAGENTA} />
-      <path d="M20 40 L30 26" stroke={MAGENTA} />
-      <path d="M34 10 L58 40" stroke={YELLOW} />
-      <path d="M34 18 L51 40" stroke={TEAL} />
-      <path d="M34 26 L44 40" stroke={TEAL} />
-    </svg>
-  );
-}
 
 export function AniccaDataLogo({
   size = "md",
   showText = true,
-  className = ""
+  className = "",
+  textClassName = "text-slate-900",
+  subtitleClassName = "text-brand-teal"
 }: {
   size?: Size;
   showText?: boolean;
   className?: string;
+  textClassName?: string;
+  subtitleClassName?: string;
 }) {
   const s = SIZES[size];
 
   return (
     <span className={`inline-flex items-center ${s.gap} ${className}`}>
-      <Mark className={`${s.mark} w-auto`} />
+      <img
+        alt={showText ? "" : "Anicca Vision"}
+        aria-hidden={showText}
+        className={`${s.mark} shrink-0 object-contain`}
+        src="/anicca-vision-logo.png"
+      />
       {showText && (
         <span className="leading-tight">
-          <span className={`block font-extrabold tracking-tight text-slate-900 ${s.title}`}>
-            Anicca Data
+          <span className={`block font-extrabold tracking-tight ${textClassName} ${s.title}`}>
+            Anicca Vision
           </span>
           <span
-            className={`block font-semibold uppercase tracking-[0.12em] text-brand-teal ${s.sub}`}
+            className={`block font-semibold uppercase tracking-[0.12em] ${subtitleClassName} ${s.sub}`}
           >
-            Science Solutions
+            Traffic Analytics
           </span>
         </span>
       )}

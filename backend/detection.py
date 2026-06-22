@@ -92,7 +92,7 @@ def _levenshtein(a, b):
 def _similar(a, b):
     """Two plate reads are the same physical plate if one contains the other
     or they are within a small edit distance (handles OCR noise like
-    593YB / A593YB / 593YE)."""
+    A593YB / A593YB / 593YE)."""
     if a in b or b in a:
         return True
     if abs(len(a) - len(b)) > 2:

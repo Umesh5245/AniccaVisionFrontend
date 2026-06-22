@@ -6,14 +6,12 @@ import {
   CameraSwitcher,
   EmptyState,
   GraphPanel,
-  KpiStrip,
-  KpiStripSkeleton,
   MetricCard,
   Skeleton,
   SummaryPanels,
-  VideoCard,
   VideoStage,
-  ViolationTable
+  ViolationTable,
+  type TableRow
 } from "@anicca/ui";
 import { AppHeader } from "@/components/AppHeader";
 import { useDataset } from "@/components/DataContext";
@@ -24,10 +22,6 @@ import { posterSource, videoSource } from "@/lib/media";
 const tabs = ["Data View", "Graph", "Violations"] as const;
 
 type Tab = (typeof tabs)[number];
-
-const statusFilters = ["All", "Live", "Review"] as const;
-
-type StatusFilter = (typeof statusFilters)[number];
 
 export function TrafficDashboard({
   onLogout,
@@ -41,7 +35,6 @@ export function TrafficDashboard({
   const loading = source === "loading";
 
   const [activeTab, setActiveTab] = useState<Tab>("Data View");
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("All");
   const [selectedFeedId, setSelectedFeedId] = useState<string>(feeds[0]?.id ?? "");
 
   // Keep the selection valid as the dataset changes (static -> live, uploads).
@@ -51,13 +44,17 @@ export function TrafficDashboard({
     }
   }, [feeds, selectedFeedId]);
 
-  const visibleFeeds = useMemo(
-    () =>
-      statusFilter === "All" ? feeds : feeds.filter((feed) => feed.status === statusFilter),
-    [feeds, statusFilter]
-  );
-
   const selectedFeed = feeds.find((feed) => feed.id === selectedFeedId) ?? feeds[0];
+  const showTollPlateReads =
+    selectedFeed?.id === "plate-capture" || selectedFeed?.area === "Toll Junction";
+
+  const tollPlateRows = useMemo(() => {
+    if (!selectedFeed) return [];
+
+    return dataset.tableRows
+      .filter((row) => row.feedId === selectedFeed.id && row.ocrConfidence > 0)
+      .sort((a, b) => (Date.parse(a.timestamp) || 0) - (Date.parse(b.timestamp) || 0));
+  }, [dataset.tableRows, selectedFeed]);
 
   // Enrich each metric with its % difference vs the fleet average (trend hint).
   const selectedMetrics = useMemo(() => {
@@ -71,14 +68,6 @@ export function TrafficDashboard({
       return { ...metric, delta };
     });
   }, [selectedFeed, feeds]);
-
-  function handleStatusFilter(value: StatusFilter) {
-    setStatusFilter(value);
-    const next = value === "All" ? feeds : feeds.filter((feed) => feed.status === value);
-    if (next.length > 0 && !next.some((feed) => feed.id === selectedFeedId)) {
-      setSelectedFeedId(next[0].id);
-    }
-  }
 
   if (!selectedFeed) {
     return (
@@ -98,30 +87,14 @@ export function TrafficDashboard({
     <main className="min-h-full">
       <AppHeader onLogout={onLogout} userEmail={userEmail} />
       <div className="mx-auto max-w-7xl space-y-5 px-4 py-5 sm:px-6 lg:px-8">
-        {loading ? <KpiStripSkeleton /> : <KpiStrip feeds={feeds} />}
-
         <section className="rounded-lg border border-slate-200 bg-surface p-4 shadow-sm sm:p-6">
           <div className="flex flex-col gap-5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <h2 className="text-sm font-bold uppercase tracking-wide text-slate-500">Cameras</h2>
-              <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
-                Filter
-                <select
-                  className="h-9 rounded-md border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 outline-none transition focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/30"
-                  onChange={(event) => handleStatusFilter(event.target.value as StatusFilter)}
-                  value={statusFilter}
-                >
-                  {statusFilters.map((status) => (
-                    <option key={status} value={status}>
-                      {status === "All" ? "All cameras" : status}
-                    </option>
-                  ))}
-                </select>
-              </label>
             </div>
 
             <CameraSwitcher
-              feeds={visibleFeeds}
+              feeds={feeds}
               onSelect={setSelectedFeedId}
               posterFor={(feed) => posterSource(feed.file)}
               selectedId={selectedFeedId}
@@ -154,15 +127,17 @@ export function TrafficDashboard({
                       </span>{" "}
                       · {selectedFeed.title}
                     </h3>
-                    <div className="metric-grid grid gap-4">
-                      {loading
-                        ? Array.from({ length: 4 }).map((_, i) => (
-                            <Skeleton className="h-[104px]" key={i} />
-                          ))
-                        : selectedMetrics.map((metric) => (
-                            <MetricCard key={metric.label} metric={metric} />
-                          ))}
-                    </div>
+                    {!showTollPlateReads && (
+                      <div className="metric-grid grid gap-4">
+                        {loading
+                          ? Array.from({ length: 4 }).map((_, i) => (
+                              <Skeleton className="h-[104px]" key={i} />
+                            ))
+                          : selectedMetrics.map((metric) => (
+                              <MetricCard key={metric.label} metric={metric} />
+                            ))}
+                      </div>
+                    )}
                     <VideoStage
                       feed={selectedFeed}
                       key={selectedFeed.id}
@@ -171,23 +146,11 @@ export function TrafficDashboard({
                     />
                     <HistoryTrend feedId={selectedFeed.id} />
                   </div>
-                  <SummaryPanels feed={selectedFeed} />
-                </div>
-                <section>
-                  <h2 className="mb-3 text-lg font-semibold text-slate-950">Video Evidence</h2>
-                  <div className="grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-                    {visibleFeeds.map((feed) => (
-                      <VideoCard
-                        feed={feed}
-                        key={feed.id}
-                        onSelect={() => setSelectedFeedId(feed.id)}
-                        posterSrc={posterSource(feed.file)}
-                        selected={feed.id === selectedFeed.id}
-                        videoSrc={videoSource(feed.file)}
-                      />
-                    ))}
+                  <div className="space-y-5">
+                    {showTollPlateReads && <TollPlateReads rows={tollPlateRows} />}
+                    <SummaryPanels feed={selectedFeed} hideViolations={showTollPlateReads} />
                   </div>
-                </section>
+                </div>
               </div>
             )}
 
@@ -209,5 +172,52 @@ export function TrafficDashboard({
         </section>
       </div>
     </main>
+  );
+}
+
+function TollPlateReads({ rows }: { rows: TableRow[] }) {
+  return (
+    <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-surface-muted px-4 py-3">
+        <div>
+          <h2 className="text-lg font-semibold text-slate-950">Number Plates Read</h2>
+          <p className="text-sm font-medium text-slate-500">Toll Junction ANPR reads</p>
+        </div>
+        <span className="rounded-full bg-primary px-3 py-1 text-xs font-bold text-white">
+          {rows.length} reads
+        </span>
+      </div>
+
+      <div className="divide-y divide-slate-100">
+        {rows.length === 0 ? (
+          <p className="px-4 py-6 text-center text-sm font-semibold text-slate-500">
+            No readable plates for this toll run.
+          </p>
+        ) : (
+          rows.map((row) => (
+            <div className="px-4 py-3" key={`${row.plate}-${row.timestamp}`}>
+              <div className="flex items-center justify-between gap-3">
+                <span className="font-bold text-slate-950">{row.plate}</span>
+                <span
+                  className={`inline-flex shrink-0 rounded-full px-2 py-0.5 text-xs font-bold ${
+                    row.ocrConfidence >= 0.85
+                      ? "bg-emerald-50 text-emerald-700"
+                      : row.ocrConfidence >= 0.6
+                        ? "bg-amber-50 text-amber-700"
+                        : "bg-rose-50 text-rose-600"
+                  }`}
+                >
+                  {Math.round(row.ocrConfidence * 100)}%
+                </span>
+              </div>
+              <div className="mt-1 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-xs font-semibold text-slate-500">
+                <span>{row.vehicle}</span>
+                <span>{row.timestamp}</span>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </section>
   );
 }
