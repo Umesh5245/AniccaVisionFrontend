@@ -21,8 +21,7 @@ const filters = [
   { label: "Illegal Parking", match: "parking" },
   { label: "Lane Detection", match: "lane" },
   { label: "Stop/Yield Violation", match: "stop" },
-  { label: "Undetected Infiltrations", match: "infiltration" },
-  { label: "Speed Detection", match: "speed" }
+  { label: "Over Speeding", match: "speed" }
 ] as const;
 
 type SortKey = "plate" | "ocrConfidence" | "vehicle" | "violation" | "timestamp";

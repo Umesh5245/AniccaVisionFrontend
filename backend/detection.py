@@ -297,7 +297,6 @@ def analyze_video(feed_id, path, *, title, area, file, fmt="mp4",
                 {"label": "Bicycles", "value": class_counts["bicycle"]},
             ],
             "violationSummary": [
-                {"label": "Undetected Infiltrations", "value": infil},
                 {"label": "Speed Detection", "value": speed},
                 {"label": "Illegal Parking", "value": parking},
                 {"label": "Stop/Yield Violations", "value": noyield},

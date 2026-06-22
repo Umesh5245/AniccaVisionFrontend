@@ -38,7 +38,6 @@ export function AniccaDataLogo({
           <span
             className={`block font-semibold uppercase tracking-[0.12em] ${subtitleClassName} ${s.sub}`}
           >
-            Traffic Analytics
           </span>
         </span>
       )}

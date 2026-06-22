@@ -34,7 +34,7 @@ export const cameraFeeds: CameraFeed[] = [
   {
     id: "bangalore-flow",
     title: "Bangalore Traffic Flow (Car and Heavy Vehicle Detection)",
-    area: "Main Street",
+    area: "Main Street,Bengaluru,Karnataka",
     file: "demo_bangalore_traffic_h264.mp4",
     format: "mp4",
     status: "Live",
@@ -54,8 +54,7 @@ export const cameraFeeds: CameraFeed[] = [
         { label: "Bicycles", value: 0 }
       ],
       violationSummary: [
-        { label: "Undetected Infiltrations", value: 9 },
-        { label: "Speed Detection", value: 7 },
+        { label: "Over Speeding", value: 7 },
         { label: "Illegal Parking", value: 0 },
         { label: "Stop/Yield Violations", value: 3 }
       ]
@@ -64,7 +63,7 @@ export const cameraFeeds: CameraFeed[] = [
   {
     id: "congestion",
     title: "Congestion Monitoring",
-    area: "City Center",
+    area: "City Center, Bengaluru,Karnataka",
     file: "Congestion_h264.mp4",
     format: "mp4",
     status: "Live",
@@ -84,8 +83,7 @@ export const cameraFeeds: CameraFeed[] = [
         { label: "Bicycles", value: 0 }
       ],
       violationSummary: [
-        { label: "Undetected Infiltrations", value: 0 },
-        { label: "Speed Detection", value: 0 },
+        { label: "Over Speeding", value: 0 },
         { label: "Illegal Parking", value: 3 },
         { label: "Stop/Yield Violations", value: 0 }
       ]
@@ -94,7 +92,7 @@ export const cameraFeeds: CameraFeed[] = [
   {
     id: "no-parking",
     title: "No Parking Detection",
-    area: "Market Road",
+    area: "HSR Layout Market Road,Bengaluru,Karnataka",
     file: "no_parking_h264.mp4",
     format: "mp4",
     status: "Review",
@@ -114,8 +112,7 @@ export const cameraFeeds: CameraFeed[] = [
         { label: "Bicycles", value: 0 }
       ],
       violationSummary: [
-        { label: "Undetected Infiltrations", value: 8 },
-        { label: "Speed Detection", value: 0 },
+        { label: "Over Speeding", value: 0 },
         { label: "Illegal Parking", value: 2 },
         { label: "Stop/Yield Violations", value: 0 }
       ]
@@ -124,7 +121,7 @@ export const cameraFeeds: CameraFeed[] = [
   {
     id: "plate-capture",
     title: "License Plate Capture",
-    area: "Toll Junction",
+    area: "Toll Junction,Seaul,South Korea",
     file: "license_number.mp4",
     format: "mp4",
     status: "Review",
@@ -144,8 +141,7 @@ export const cameraFeeds: CameraFeed[] = [
         { label: "Bicycles", value: 7 }
       ],
       violationSummary: [
-        { label: "Undetected Infiltrations", value: 0 },
-        { label: "Speed Detection", value: 0 },
+        { label: "Over Speeding", value: 0 },
         { label: "Illegal Parking", value: 0 },
         { label: "Stop/Yield Violations", value: 0 }
       ]
@@ -154,7 +150,7 @@ export const cameraFeeds: CameraFeed[] = [
   {
     id: "junction-eight",
     title: "Junction Camera 8",
-    area: "Ring Road",
+    area: "Bellevue, WA, USA",
     file: "media8_h264.mp4",
     format: "mp4",
     status: "Live",
@@ -174,8 +170,7 @@ export const cameraFeeds: CameraFeed[] = [
         { label: "Bicycles", value: 0 }
       ],
       violationSummary: [
-        { label: "Undetected Infiltrations", value: 0 },
-        { label: "Speed Detection", value: 1 },
+        { label: "Over Speeding", value: 1 },
         { label: "Illegal Parking", value: 0 },
         { label: "Stop/Yield Violations", value: 1 }
       ]
