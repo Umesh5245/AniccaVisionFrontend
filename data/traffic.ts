@@ -33,7 +33,7 @@ export type {
 export const cameraFeeds: CameraFeed[] = [
   {
     id: "bangalore-flow",
-    title: "Bangalore Traffic Flow Car and Heavy Vehicle Detection",
+    title: "Bangalore Traffic Flow (Car and Heavy Vehicle Detection)",
     area: "Main Street",
     file: "demo_bangalore_traffic_h264.mp4",
     format: "mp4",
@@ -144,10 +144,10 @@ export const cameraFeeds: CameraFeed[] = [
         { label: "Bicycles", value: 7 }
       ],
       violationSummary: [
-        { label: "Undetected Infiltrations", value: 7 },
-        { label: "Speed Detection", value: 5 },
-        { label: "Illegal Parking", value: 8 },
-        { label: "Stop/Yield Violations", value: 1 }
+        { label: "Undetected Infiltrations", value: 0 },
+        { label: "Speed Detection", value: 0 },
+        { label: "Illegal Parking", value: 0 },
+        { label: "Stop/Yield Violations", value: 0 }
       ]
     }
   },

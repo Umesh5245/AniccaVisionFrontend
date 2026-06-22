@@ -29,7 +29,6 @@ export function SummaryPanels({
 
       {!hideViolations && (
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-slate-950">Violations</h2>
           <div className="space-y-3">
             {feed.analysis.violationSummary.map((item) => (
               <div

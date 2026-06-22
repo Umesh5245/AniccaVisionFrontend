@@ -10,7 +10,6 @@ import {
   Skeleton,
   SummaryPanels,
   VideoStage,
-  ViolationTable,
   type TableRow
 } from "@anicca/ui";
 import { AppHeader } from "@/components/AppHeader";
@@ -19,7 +18,7 @@ import { HistoryTrend } from "@/components/HistoryTrend";
 import { metricsForFeed } from "@/data/traffic";
 import { posterSource, videoSource } from "@/lib/media";
 
-const tabs = ["Data View", "Graph", "Violations"] as const;
+const tabs = ["Data View", "Graph"] as const;
 
 type Tab = (typeof tabs)[number];
 
@@ -121,12 +120,6 @@ export function TrafficDashboard({
               <div className="space-y-6">
                 <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_410px]">
                   <div className="space-y-5">
-                    <h3 className="text-sm font-semibold text-slate-700">
-                      <span className="font-bold uppercase tracking-wide text-slate-500">
-                        Selected camera
-                      </span>{" "}
-                      · {selectedFeed.title}
-                    </h3>
                     {!showTollPlateReads && (
                       <div className="metric-grid grid gap-4">
                         {loading
@@ -158,14 +151,6 @@ export function TrafficDashboard({
               <GraphPanel
                 feed={selectedFeed}
                 vehicleTimeline={dataset.vehicleTimelineByFeed[selectedFeed.id] ?? []}
-                violationTimeline={dataset.violationTimelineByFeed[selectedFeed.id] ?? []}
-              />
-            )}
-
-            {activeTab === "Violations" && (
-              <ViolationTable
-                feed={selectedFeed}
-                rows={dataset.tableRows.filter((row) => row.feedId === selectedFeed.id)}
               />
             )}
           </div>

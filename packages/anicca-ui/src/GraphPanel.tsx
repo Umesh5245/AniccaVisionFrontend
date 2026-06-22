@@ -14,7 +14,7 @@ import {
 import { AnimatedNumber } from "./AnimatedNumber";
 import { downloadCsv } from "./csv";
 import { EmptyState } from "./EmptyState";
-import type { CameraFeed, VehicleBucket, ViolationBucket } from "./types";
+import type { CameraFeed, VehicleBucket } from "./types";
 
 const vehicleColumns = [
   { key: "label", label: "Time" },
@@ -26,12 +26,8 @@ const vehicleColumns = [
 ];
 
 const violationColumns = [
-  { key: "label", label: "Time" },
-  { key: "parking", label: "Illegal Parking" },
-  { key: "wrongLane", label: "Wrong Lane" },
-  { key: "stop", label: "Stop/Yield" },
-  { key: "speed", label: "Speed" },
-  { key: "infiltration", label: "Infiltration" }
+  { key: "label", label: "Violation Type" },
+  { key: "value", label: "Count" }
 ];
 
 const vehicleSeries = [
@@ -40,14 +36,6 @@ const vehicleSeries = [
   { key: "truck", label: "Trucks", color: "#f97316" },
   { key: "bus", label: "Buses", color: "#fcd34d" },
   { key: "bicycle", label: "Bicycle", color: "#10b981" }
-] as const;
-
-const violationSeries = [
-  { key: "parking", label: "Illegal Parking", color: "#10b981" },
-  { key: "wrongLane", label: "Wrong lane", color: "#f97316" },
-  { key: "stop", label: "Stop/Yield", color: "#818cf8" },
-  { key: "speed", label: "Speed", color: "#075985" },
-  { key: "infiltration", label: "Infiltration", color: "#fcd34d" }
 ] as const;
 
 function StackedBars({
@@ -62,22 +50,42 @@ function StackedBars({
   }
 
   return (
-    <div className="mt-6 h-64 w-full">
+    <div className="mt-6 h-72 w-full">
       <ResponsiveContainer height="100%" width="100%">
-        <BarChart data={data as Record<string, number | string>[]} margin={{ top: 8, right: 8, bottom: 0, left: -16 }}>
+        <BarChart
+          data={data as Record<string, number | string>[]}
+          margin={{ top: 8, right: 8, bottom: 26, left: 12 }}
+        >
           <CartesianGrid stroke="#e2e8f0" vertical={false} />
           <XAxis
             axisLine={false}
             dataKey="label"
+            height={42}
+            label={{
+              value: "Time (m:ss)",
+              position: "insideBottom",
+              offset: -6,
+              fill: "#64748b",
+              fontSize: 12,
+              fontWeight: 600
+            }}
             tick={{ fill: "#475569", fontSize: 12, fontWeight: 500 }}
             tickLine={false}
           />
           <YAxis
             allowDecimals={false}
             axisLine={false}
+            label={{
+              value: "Vehicles (count)",
+              angle: -90,
+              position: "insideLeft",
+              fill: "#64748b",
+              fontSize: 12,
+              fontWeight: 600
+            }}
             tick={{ fill: "#94a3b8", fontSize: 12 }}
             tickLine={false}
-            width={36}
+            width={58}
           />
           <Tooltip
             contentStyle={{ borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 12 }}
@@ -103,15 +111,76 @@ function StackedBars({
   );
 }
 
+function SummaryBars({ data }: { data: readonly { label: string; value: number }[] }) {
+  if (data.length === 0) {
+    return <EmptyState icon={BarChart3} title="No violation data for this camera" />;
+  }
+
+  return (
+    <div className="mt-6 h-72 w-full">
+      <ResponsiveContainer height="100%" width="100%">
+        <BarChart
+          data={data}
+          layout="vertical"
+          margin={{ top: 8, right: 8, bottom: 26, left: 24 }}
+        >
+          <CartesianGrid horizontal={false} stroke="#e2e8f0" />
+          <XAxis
+            allowDecimals={false}
+            axisLine={false}
+            height={42}
+            label={{
+              value: "Violations (count)",
+              position: "insideBottom",
+              offset: -6,
+              fill: "#64748b",
+              fontSize: 12,
+              fontWeight: 600
+            }}
+            tick={{ fill: "#94a3b8", fontSize: 12 }}
+            tickLine={false}
+            type="number"
+          />
+          <YAxis
+            axisLine={false}
+            dataKey="label"
+            label={{
+              value: "Violation type",
+              angle: -90,
+              position: "insideLeft",
+              fill: "#64748b",
+              fontSize: 12,
+              fontWeight: 600
+            }}
+            tick={{ fill: "#475569", fontSize: 11, fontWeight: 500 }}
+            tickLine={false}
+            type="category"
+            width={160}
+          />
+          <Tooltip
+            contentStyle={{ borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 12 }}
+            cursor={{ fill: "rgba(225, 29, 72, 0.06)" }}
+          />
+          <Bar dataKey="value" fill="#e11d48" name="Count" radius={[0, 2, 2, 0]} />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
 export function GraphPanel({
   feed,
-  vehicleTimeline,
-  violationTimeline
+  vehicleTimeline
 }: {
   feed: CameraFeed;
   vehicleTimeline: VehicleBucket[];
-  violationTimeline: ViolationBucket[];
 }) {
+  const violationSummary = feed.analysis.violationSummary.map(({ label, value }) => ({
+    label,
+    value
+  }));
+  const violationTotal = violationSummary.reduce((sum, item) => sum + item.value, 0);
+
   return (
     <div className="grid gap-6 xl:grid-cols-2">
       <section className="rounded-md border border-slate-200 bg-white p-5 shadow-soft">
@@ -140,20 +209,22 @@ export function GraphPanel({
           <div>
             <h2 className="text-xl font-semibold text-slate-950">Violations</h2>
             <p className="mt-4 text-3xl font-bold text-slate-950">
-              <AnimatedNumber value={feed.violations} />
+              <AnimatedNumber value={violationTotal} />
             </p>
-            <p className="mt-1 text-xs font-medium text-slate-500">{feed.title} · over time</p>
+            <p className="mt-1 text-xs font-medium text-slate-500">
+              {feed.title} · Data View summary
+            </p>
           </div>
           <button
             aria-label="Download violations"
             className="grid h-9 w-9 place-items-center rounded-md text-slate-600 transition hover:bg-slate-100"
-            onClick={() => downloadCsv(`${feed.id}-violations.csv`, violationColumns, violationTimeline)}
+            onClick={() => downloadCsv(`${feed.id}-violations.csv`, violationColumns, violationSummary)}
             type="button"
           >
             <Download size={18} />
           </button>
         </div>
-        <StackedBars data={violationTimeline} series={violationSeries} />
+        <SummaryBars data={violationSummary} />
       </section>
     </div>
   );

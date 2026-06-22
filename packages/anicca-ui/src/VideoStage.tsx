@@ -1,6 +1,6 @@
 "use client";
 
-import { Activity, CarFront, TriangleAlert, VideoOff } from "lucide-react";
+import { VideoOff } from "lucide-react";
 import { useState } from "react";
 import { AnimatedNumber } from "./AnimatedNumber";
 import type { CameraFeed } from "./types";
@@ -63,35 +63,6 @@ export function VideoStage({
           <span className="rounded-md bg-slate-950/70 px-3 py-1 text-xs font-bold text-white">
             <AnimatedNumber value={feed.confidence} suffix="%" /> confidence
           </span>
-        </div>
-      </div>
-      <div className="grid gap-3 border-t border-slate-200 p-4 sm:grid-cols-3">
-        <div className="flex items-center gap-3 rounded-md bg-slate-100 p-3">
-          <CarFront className="text-primary" size={20} />
-          <div>
-            <p className="text-xs font-semibold text-slate-500">Vehicles</p>
-            <p className="text-lg font-bold text-slate-950">
-              <AnimatedNumber value={feed.vehicles} />
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-3 rounded-md bg-rose-50 p-3">
-          <TriangleAlert className="text-rose-500" size={20} />
-          <div>
-            <p className="text-xs font-semibold text-rose-600">Violations</p>
-            <p className="text-lg font-bold text-rose-700">
-              <AnimatedNumber value={feed.violations} />
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-3 rounded-md bg-emerald-50 p-3">
-          <Activity className="text-emerald-600" size={20} />
-          <div>
-            <p className="text-xs font-semibold text-emerald-700">AI Score</p>
-            <p className="text-lg font-bold text-emerald-700">
-              <AnimatedNumber value={feed.confidence} suffix="%" />
-            </p>
-          </div>
         </div>
       </div>
     </section>

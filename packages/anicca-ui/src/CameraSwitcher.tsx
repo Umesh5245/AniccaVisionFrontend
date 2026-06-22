@@ -16,7 +16,6 @@ function Thumb({
   onSelect: () => void;
 }) {
   const [errored, setErrored] = useState(false);
-  const live = feed.status === "Live";
 
   return (
     <button
@@ -45,12 +44,6 @@ function Thumb({
             src={posterSrc}
           />
         )}
-        <span
-          aria-hidden
-          className={`absolute right-1.5 top-1.5 h-2 w-2 rounded-full ring-2 ring-black/30 ${
-            live ? "animate-pulse bg-emerald-400" : "bg-amber-400"
-          }`}
-        />
       </div>
       <div className="px-2 py-1.5">
         <p className="truncate text-xs font-semibold text-slate-900">{feed.area}</p>
