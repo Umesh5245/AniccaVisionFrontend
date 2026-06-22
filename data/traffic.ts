@@ -335,7 +335,7 @@ export const tableRows: TableRow[] = [
   },
   {
     feedId: "plate-capture",
-    plate: "JEVO7",
+    plate: "JEV077",
     vehicle: "Car",
     violation: "No violation",
     speed: "--",
@@ -345,7 +345,7 @@ export const tableRows: TableRow[] = [
   },
   {
     feedId: "plate-capture",
-    plate: "BA23717",
+    plate: "A237T7",
     vehicle: "Car",
     violation: "No violation",
     speed: "--",
@@ -355,7 +355,7 @@ export const tableRows: TableRow[] = [
   },
   {
     feedId: "plate-capture",
-    plate: "AX639",
+    plate: "AX639G",
     vehicle: "Car",
     violation: "No violation",
     speed: "--",
@@ -365,7 +365,7 @@ export const tableRows: TableRow[] = [
   },
   {
     feedId: "plate-capture",
-    plate: "KEW0208",
+    plate: "EW0208",
     vehicle: "Car",
     violation: "No violation",
     speed: "--",
@@ -375,7 +375,7 @@ export const tableRows: TableRow[] = [
   },
   {
     feedId: "plate-capture",
-    plate: "3528E",
+    plate: "A528EY",
     vehicle: "Car",
     violation: "No violation",
     speed: "--",
@@ -385,7 +385,7 @@ export const tableRows: TableRow[] = [
   },
   {
     feedId: "plate-capture",
-    plate: "A931N9",
+    plate: "A93IN9",
     vehicle: "Car",
     violation: "No violation",
     speed: "--",
@@ -395,7 +395,7 @@ export const tableRows: TableRow[] = [
   },
   {
     feedId: "plate-capture",
-    plate: "A63668",
+    plate: "AG5668",
     vehicle: "Bus",
     violation: "No violation",
     speed: "--",
@@ -405,7 +405,7 @@ export const tableRows: TableRow[] = [
   },
   {
     feedId: "plate-capture",
-    plate: "JEVO77",
+    plate: "JEV077",
     vehicle: "Car",
     violation: "No violation",
     speed: "--",
@@ -415,7 +415,7 @@ export const tableRows: TableRow[] = [
   },
   {
     feedId: "plate-capture",
-    plate: "AS28EY",
+    plate: "A528EY",
     vehicle: "Car",
     violation: "No violation",
     speed: "--",
