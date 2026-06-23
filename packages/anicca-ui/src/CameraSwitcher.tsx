@@ -21,7 +21,7 @@ function Thumb({
     <button
       aria-label={`Select ${feed.area} camera`}
       aria-pressed={selected}
-      className={`group relative w-40 shrink-0 overflow-hidden rounded-lg border text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${
+      className={`group relative w-64 shrink-0 overflow-hidden rounded-lg border text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 sm:w-72 ${
         selected
           ? "border-primary ring-2 ring-primary/20"
           : "border-slate-200 hover:border-slate-300"
@@ -46,8 +46,12 @@ function Thumb({
         )}
       </div>
       <div className="px-2 py-1.5">
-        <p className="truncate text-xs font-semibold text-slate-900">{feed.area}</p>
-        <p className="truncate text-[10px] font-medium text-slate-500">{feed.title}</p>
+        <p className="break-words text-xs font-semibold leading-snug text-slate-900">
+          {feed.area}
+        </p>
+        <p className="mt-0.5 break-words text-[10px] font-medium leading-snug text-slate-500">
+          {feed.title}
+        </p>
       </div>
     </button>
   );

@@ -121,7 +121,7 @@ export const cameraFeeds: CameraFeed[] = [
   {
     id: "plate-capture",
     title: "License Plate Capture",
-    area: "Toll Junction,Seaul,South Korea",
+    area: "Toll Junction,Seoul,South Korea",
     file: "license_number.mp4",
     format: "mp4",
     status: "Review",
@@ -150,7 +150,7 @@ export const cameraFeeds: CameraFeed[] = [
   {
     id: "junction-eight",
     title: "Junction Camera 8",
-    area: "Bellevue, WA, USA",
+    area: "Washington, USA",
     file: "media8_h264.mp4",
     format: "mp4",
     status: "Live",
