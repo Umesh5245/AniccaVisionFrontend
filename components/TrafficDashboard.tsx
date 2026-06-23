@@ -1,7 +1,7 @@
 "use client";
 
 import { Cctv } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   CameraSwitcher,
   EmptyState,
@@ -35,6 +35,11 @@ export function TrafficDashboard({
 
   const [activeTab, setActiveTab] = useState<Tab>("Data View");
   const [selectedFeedId, setSelectedFeedId] = useState<string>(feeds[0]?.id ?? "");
+
+  const handleSelectFeed = useCallback((feedId: string) => {
+    setSelectedFeedId(feedId);
+    setActiveTab("Data View");
+  }, []);
 
   // Keep the selection valid as the dataset changes (static -> live, uploads).
   useEffect(() => {
@@ -71,7 +76,7 @@ export function TrafficDashboard({
   if (!selectedFeed) {
     return (
       <main className="min-h-full">
-        <AppHeader onLogout={onLogout} userEmail={userEmail} />
+        <AppHeader onLogout={onLogout} onSelectFeed={handleSelectFeed} userEmail={userEmail} />
         <EmptyState
           className="mt-10"
           hint="Connect the analysis backend or check the data source."
@@ -84,7 +89,7 @@ export function TrafficDashboard({
 
   return (
     <main className="min-h-full">
-      <AppHeader onLogout={onLogout} userEmail={userEmail} />
+      <AppHeader onLogout={onLogout} onSelectFeed={handleSelectFeed} userEmail={userEmail} />
       <div className="mx-auto max-w-7xl space-y-5 px-4 py-5 sm:px-6 lg:px-8">
         <section className="rounded-lg border border-slate-200 bg-surface p-4 shadow-sm sm:p-6">
           <div className="flex flex-col gap-5">
@@ -94,7 +99,7 @@ export function TrafficDashboard({
 
             <CameraSwitcher
               feeds={feeds}
-              onSelect={setSelectedFeedId}
+              onSelect={handleSelectFeed}
               posterFor={(feed) => posterSource(feed.file)}
               selectedId={selectedFeedId}
             />
